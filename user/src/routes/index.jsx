@@ -38,6 +38,7 @@ const TimelinePage = lazy(() => import('@/app/(admin)/pages/timeline/page'));
 const Pricing = lazy(() => import('@/app/(admin)/pages/pricing/page'));
 const Maintenance = lazy(() => import('@/app/(other)/maintenance/page'));
 const Widgets = lazy(() => import('@/app/(admin)/widgets/page'));
+const UserProfile = lazy(() => import('@/pages/user-profile/UserProfile'));
 
 // Base UI Routes
 const Accordions = lazy(() => import('@/app/(admin)/ui/accordions/page'));
@@ -259,6 +260,10 @@ const customRoutes = [{
   name: 'Widgets',
   path: '/widgets',
   element: <Widgets />
+}, {
+  name: 'UserProfile',
+  path: '/user-profile',
+  element: <UserProfile />
 }];
 const baseUIRoutes = [{
   name: 'Accordions',
