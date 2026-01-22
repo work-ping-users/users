@@ -57,6 +57,7 @@ const Skill = ({ skillData = [] }) => {
             <div
               key={idx}
               className="position-relative bg-light rounded px-3 py-2"
+              style={{ height: '40px' }}
               onMouseEnter={() => setHoveredIndex(idx)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
