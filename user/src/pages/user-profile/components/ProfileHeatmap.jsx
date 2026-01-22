@@ -1,92 +1,69 @@
-import { useMemo } from 'react';
-import HeatMap from '@uiw/react-heat-map';
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  CardTitle,
-  Row,
-  Col
-} from 'react-bootstrap';
+import React, { useState, useMemo } from "react";
+import { ResponsiveCalendar } from "@nivo/calendar";
 
-const ProfileHeatmap = ({ heatMapValue = [] }) => {
-  const startDate = useMemo(() => {
-    if (!heatMapValue.length) return new Date();
-    return new Date(heatMapValue[0].date);
-  }, [heatMapValue]);
+const allData = [
+  { day: "2024-06-10", value: 2 },
+  { day: "2024-12-20", value: 5 },
+  { day: "2025-01-01", value: 1 },
+  { day: "2025-01-05", value: 3 },
+  { day: "2025-01-10", value: 7 },
+];
+
+export default function LeetCodeHeatmap() {
+  const [year, setYear] = useState("current");
+  const today = new Date();
+
+  const { from, to, data } = useMemo(() => {
+    if (year === "current") {
+      const start = new Date(today);
+      start.setFullYear(start.getFullYear() - 1);
+      start.setDate(start.getDate() + 1);
+
+      return {
+        from: start.toISOString().slice(0, 10),
+        to: today.toISOString().slice(0, 10),
+        data: allData.filter((d) => {
+          const dt = new Date(d.day);
+          return dt >= start && dt <= today;
+        }),
+      };
+    } else {
+      const y = Number(year);
+      return {
+        from: `${y}-01-01`,
+        to: `${y}-12-31`,
+        data: allData.filter(
+          (d) => new Date(d.day).getFullYear() === y
+        ),
+      };
+    }
+  }, [year]);
 
   return (
-    <Card className="h-100">
-      <CardHeader className="d-flex justify-content-between align-items-center">
-        <CardTitle as="h5" className="mb-0">
-          Activity Heatmap
-        </CardTitle>
-        <small className="text-muted">Daily activity</small>
-      </CardHeader>
+    <div style={{ height: 220, width: "100%", padding: 24 }}>
+      <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+        <h3 style={{ margin: 0 }}>Activity</h3>
+        <select value={year} onChange={(e) => setYear(e.target.value)}>
+          <option value="current">Last 12 Months</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+        </select>
+      </div>
 
-      <CardBody>
-        {/* Heatmap container */}
-        <div className="overflow-auto">
-          <HeatMap
-            value={heatMapValue}
-            startDate={startDate}
-            width="100%"
-            rectSize={12}
-            space={3}
-            monthLabels={[
-              'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-            ]}
-            weekLabels={['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']}
-            panelColors={{
-              0: '#e9ecef',
-              2: '#9be9a8',
-              5: '#40c463',
-              10: '#30a14e',
-              20: '#216e39'
-            }}
-            rectRender={(props, data) => (
-              <rect
-                {...props}
-                className="cursor-pointer"
-                onClick={() =>
-                  data?.date &&
-                  alert(`${data.date}: ${data.count || 0} activities`)
-                }
-              />
-            )}
-          />
-        </div>
-
-        {/* Legend */}
-        <Row className="align-items-center mt-3 g-2">
-          <Col xs="auto" className="text-muted small">
-            Less
-          </Col>
-
-          <Col xs="auto">
-            <div className="bg-light rounded" style={{ width: 12, height: 12 }} />
-          </Col>
-          <Col xs="auto">
-            <div className="rounded" style={{ background: '#9be9a8', width: 12, height: 12 }} />
-          </Col>
-          <Col xs="auto">
-            <div className="rounded" style={{ background: '#40c463', width: 12, height: 12 }} />
-          </Col>
-          <Col xs="auto">
-            <div className="rounded" style={{ background: '#30a14e', width: 12, height: 12 }} />
-          </Col>
-          <Col xs="auto">
-            <div className="rounded" style={{ background: '#216e39', width: 12, height: 12 }} />
-          </Col>
-
-          <Col xs="auto" className="text-muted small">
-            More
-          </Col>
-        </Row>
-      </CardBody>
-    </Card>
+      <ResponsiveCalendar
+        data={data}
+        from={from}
+        to={to}
+        emptyColor="#ebedf0"
+        colors={["#9be9a8", "#40c463", "#30a14e", "#216e39"]}
+        margin={{ top: 20, right: 20, bottom: 20, left: 40 }}
+        yearSpacing={40}
+        monthBorderColor="#ffffff"
+        dayBorderWidth={1}
+        dayBorderColor="#ffffff"
+        weekdayLegendOffset={-5}
+      />
+    </div>
   );
-};
-
-export default ProfileHeatmap;
+}

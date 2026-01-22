@@ -1,22 +1,88 @@
-import { Card, CardBody, CardHeader, CardTitle, Col, ProgressBar, Row } from 'react-bootstrap';
-import { skillData } from '../data';
-import { Fragment } from 'react';
-const Skill = () => {
-  return <Card>
+import { useState } from 'react';
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Col,
+  Row,
+  Button,
+  Form
+} from 'react-bootstrap';
+
+const Skill = ({ skillData = [] }) => {
+  const [skills, setSkills] = useState(skillData);
+  const [newSkill, setNewSkill] = useState('');
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  const handleAddSkill = () => {
+    if (!newSkill.trim()) return;
+    setSkills([...skills, { title: newSkill }]);
+    setNewSkill('');
+  };
+
+  const handleDeleteSkill = (index) => {
+    setSkills(skills.filter((_, i) => i !== index));
+  };
+
+  return (
+    <Card className="shadow-none mb-0" style={{ height: '348px' }}>
       <CardHeader>
-        <CardTitle as={'h5'}>Skill</CardTitle>
+        <CardTitle as="h5">Skill</CardTitle>
       </CardHeader>
-      <CardBody>
-        <Row>
-          <Col xs={12}>
-            {skillData.map((item, idx) => <Fragment key={idx}>
-                <p className="fs-15 mb-1 float-end">{item.progressValue}%</p>
-                <p className="fs-15 mb-1">{item.title}</p>
-                <ProgressBar variant="primary" striped animated now={item.progressValue} className={`progress-sm ${skillData.length - 1 === idx ? 'mb-2' : 'mb-3'}`} />
-              </Fragment>)}
+
+      {/* ✅ MUST be flex-column */}
+      <CardBody className="d-flex flex-column p-lg-3 p-2"  style={{ height: '320px' }}>
+        <Row className="mb-3">
+          <Col xs={7}>
+            <Form.Control
+              placeholder="Skill name"
+              value={newSkill}
+              onChange={(e) => setNewSkill(e.target.value)}
+            />
+          </Col>
+          <Col xs={5}>
+            <Button className="w-100" onClick={handleAddSkill}>
+              Add
+            </Button>
           </Col>
         </Row>
+
+        {/* ✅ Scrollable area */}
+        <div
+          className="flex-grow-1 d-flex flex-wrap gap-2 pe-1"
+          style={{ overflowY: 'auto' }}
+        >
+          {skills.map((item, idx) => (
+            <div
+              key={idx}
+              className="position-relative bg-light rounded px-3 py-2"
+              onMouseEnter={() => setHoveredIndex(idx)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              {hoveredIndex === idx && (
+                <Button
+                  variant="danger"
+                  size="sm"
+                  className="position-absolute top-0 start-0 rounded-circle p-0"
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    transform: 'translate(-40%, -40%)'
+                  }}
+                  onClick={() => handleDeleteSkill(idx)}
+                >
+                  ×
+                </Button>
+              )}
+
+              {item.title}
+            </div>
+          ))}
+        </div>
       </CardBody>
-    </Card>;
+    </Card>
+  );
 };
+
 export default Skill;

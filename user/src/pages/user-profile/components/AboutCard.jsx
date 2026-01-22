@@ -59,7 +59,7 @@ const AboutCard = () => {
   };
 
   return (
-    <Card className="text-center">
+    <Card className="text-center h-100">
       {/* ---------- Avatar ---------- */}
       <div className="d-flex justify-content-center pt-4">
         <img
