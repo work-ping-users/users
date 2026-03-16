@@ -540,6 +540,32 @@ html[data-menu-size='hidden'] {
     }
 }
 
+// Responsive: tablet and mobile (≤1280px)
+// Force sidebar off-screen on tablet/mobile even when data-menu-size='default'
+// JS sets 'hidden' on mount, but this ensures correct layout before JS runs
+@media (max-width: 1280px) {
+    html[data-menu-size='default'] {
+        .topbar {
+            padding: 0 $spacer;
+        }
+
+        .main-nav {
+            margin-left: calc($main-nav-width * -1);
+        }
+
+        .page-content {
+            margin-left: 0;
+        }
+
+        &.sidebar-enable {
+            .main-nav {
+                margin-left: 0;
+                z-index: 1055;
+            }
+        }
+    }
+}
+
 // Sidenav Dark and Brand
 html[data-bs-theme='dark'],
 html[data-menu-color='dark'],

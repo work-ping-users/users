@@ -23,10 +23,19 @@ const LayoutProvider = ({
     topbarTheme: queryParams['topbar_theme'] ? queryParams['topbar_theme'] : 'light',
     menu: {
       theme: queryParams['menu_theme'] ? queryParams['menu_theme'] : 'light',
-      size: queryParams['menu_size'] ? queryParams['menu_size'] : 'sm-hover-active'
+      size: queryParams['menu_size'] ? queryParams['menu_size'] : 'default'
     }
   };
   const [settings, setSettings] = useLocalStorage('__REBACK_NEXT_CONFIG__', INIT_STATE,override);
+
+  // Migrate old menu sizes (sm-hover-active, condensed, etc.) to 'default'
+  useEffect(() => {
+    const validSizes = ['default', 'hidden'];
+    if (!validSizes.includes(settings.menu?.size)) {
+      setSettings({ ...settings, menu: { ...settings.menu, size: 'default' } });
+    }
+  }, []);
+
   const [offcanvasStates, setOffcanvasStates] = useState({
     showThemeCustomizer: false,
     showActivityStream: false,
@@ -121,6 +130,13 @@ const LayoutProvider = ({
     };
   }, [settings]);
   const resetSettings = () => updateSettings(INIT_STATE);
+  const closeSidebar = useCallback(() => {
+    const htmlTag = document.getElementsByTagName('html')[0];
+    htmlTag.classList.remove('sidebar-enable');
+    setOffcanvasStates(s => ({ ...s, showBackdrop: false }));
+    changeMenuSize('hidden');
+  }, [settings]);
+
   return <ThemeContext.Provider value={useMemo(() => ({
     ...settings,
     themeMode: settings.theme,
@@ -133,10 +149,11 @@ const LayoutProvider = ({
     themeCustomizer,
     activityStream,
     toggleBackdrop,
+    showBackdrop: offcanvasStates.showBackdrop,
     resetSettings
   }), [settings, offcanvasStates])}>
       {children}
-      {offcanvasStates.showBackdrop && <div className="offcanvas-backdrop fade show" onClick={toggleBackdrop} />}
+      {offcanvasStates.showBackdrop && <div className="offcanvas-backdrop fade show" onClick={closeSidebar} />}
     </ThemeContext.Provider>;
 };
 export { LayoutProvider, useLayoutContext };
