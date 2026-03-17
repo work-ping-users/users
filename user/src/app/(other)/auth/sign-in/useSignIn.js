@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as yup from 'yup';
 import { useAuthContext } from '@/context/useAuthContext';
 import { useNotificationContext } from '@/context/useNotificationContext';
-import httpClient from '@/helpers/httpClient';
+import axiosClient from '@/helpers/axiosClient';
 const useSignIn = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const useSignIn = () => {
   };
   const login = handleSubmit(async values => {
     try {
-      const res = await httpClient.post('/login', values);
+      const res = await axiosClient.post('/login', values);
       if (res.data.token) {
         saveSession({
           ...(res.data ?? {}),

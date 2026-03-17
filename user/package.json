@@ -25,7 +25,6 @@
     "@tanstack/react-table": "^8.17.3",
     "apexcharts": "3.41.0",
     "axios": "^1.7.2",
-    "axios-mock-adapter": "^1.22.0",
     "bootstrap": "^5.3.3",
     "choices.js": "^10.2.0",
     "clsx": "^2.1.1",
