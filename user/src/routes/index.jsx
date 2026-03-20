@@ -39,6 +39,8 @@ const Pricing = lazy(() => import('@/app/(admin)/pages/pricing/page'));
 const Maintenance = lazy(() => import('@/app/(other)/maintenance/page'));
 const Widgets = lazy(() => import('@/app/(admin)/widgets/page'));
 const UserProfile = lazy(() => import('@/pages/user-profile/UserProfile'));
+const PermissionsPage = lazy(() => import('@/pages/Permissions/PermissionsPage'));
+const LeavePage = lazy(() => import('@/pages/Leave/LeavePage'));
 
 // Base UI Routes
 const Accordions = lazy(() => import('@/app/(admin)/ui/accordions/page'));
@@ -264,6 +266,14 @@ const customRoutes = [{
   name: 'UserProfile',
   path: '/user-profile',
   element: <UserProfile />
+}, {
+  name: 'Permissions',
+  path: '/permissions',
+  element: <PermissionsPage />
+}, {
+  name: 'Leave',
+  path: '/leave',
+  element: <LeavePage />
 }];
 const baseUIRoutes = [{
   name: 'Accordions',
