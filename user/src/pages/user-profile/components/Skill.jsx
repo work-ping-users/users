@@ -32,7 +32,7 @@ const Skill = ({ skillData = [] }) => {
       </CardHeader>
 
       {/* ✅ MUST be flex-column */}
-      <CardBody className="d-flex flex-column p-lg-3 p-2"  style={{ height: '320px' }}>
+      <CardBody className="d-flex flex-column p-lg-3 p-2" style={{ height: '320px' }}>
         <Row className="mb-3">
           <Col xs={7}>
             <Form.Control
