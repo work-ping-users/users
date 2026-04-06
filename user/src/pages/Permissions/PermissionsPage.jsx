@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Badge, Button, Card, CardBody, CardHeader, Col, Form, Row } from 'react-bootstrap';
-import PageBreadcrumb from '@/components/layout/PageBreadcrumb';
 import PageMetaData from '@/components/PageTitle';
 import ReactTable from '@/components/Table';
 import IconifyIcon from '@/components/wrappers/IconifyIcon';
@@ -122,7 +121,6 @@ const PermissionsPage = () => {
   return (
     <>
       <PageMetaData title="Permission" />
-      <PageBreadcrumb subName="Pages" title="Permission" />
 
       <Row>
         {/* Apply Permission Form */}

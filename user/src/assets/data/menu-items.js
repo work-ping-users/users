@@ -4,6 +4,11 @@ export const MENU_ITEMS = [{
   label: 'Dashboard',
   url: '/dashboard'
 }, {
+  key: 'attendance',
+  icon: 'iconamoon:profile-circle-duotone',
+  label: 'Attendance',
+  url: '/attendance'
+}, {
   key: 'permissions',
   icon: 'iconamoon:shield-yes-duotone',
   label: 'Permissions',

@@ -27,10 +27,6 @@ const ProfileDropdown = () => {
           <IconifyIcon icon="bx:help-circle" className="text-muted fs-18 align-middle me-1" />
           <span className="align-middle">Help</span>
         </DropdownItem>
-        <DropdownItem as={Link} to="/auth/lock-screen">
-          <IconifyIcon icon="bx:lock" className="text-muted fs-18 align-middle me-1" />
-          <span className="align-middle">Lock screen</span>
-        </DropdownItem>
         <DropdownDivider className="dropdown-divider my-1" />
         <DropdownItem as={Link} className="text-danger" to="/auth/sign-in">
           <IconifyIcon icon="bx:log-out" className="fs-18 align-middle me-1" />

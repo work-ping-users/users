@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardBody, Col, Row, Spinner } from 'react-bootstrap';
-import PageBreadcrumb from '@/components/layout/PageBreadcrumb';
 import PageMetaData from '@/components/PageTitle';
 import IconifyIcon from '@/components/wrappers/IconifyIcon';
 
@@ -44,7 +43,6 @@ const HolidaysPage = () => {
   return (
     <>
       <PageMetaData title="Holidays" />
-      <PageBreadcrumb subName="Pages" title="Holidays" />
 
       <Row>
         <Col xs={12}>

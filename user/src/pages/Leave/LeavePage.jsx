@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Badge, Button, Card, CardBody, CardHeader, Col, Form, Row } from 'react-bootstrap';
-import PageBreadcrumb from '@/components/layout/PageBreadcrumb';
 import PageMetaData from '@/components/PageTitle';
 import ReactTable from '@/components/Table';
 import IconifyIcon from '@/components/wrappers/IconifyIcon';
@@ -163,7 +162,6 @@ const LeavePage = () => {
   return (
     <>
       <PageMetaData title="Leaves" />
-      <PageBreadcrumb subName="Pages" title="Leaves" />
 
       <Row>
         {/* Summary Stats */}
