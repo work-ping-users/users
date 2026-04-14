@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import PageMetaData from '@/components/PageTitle';
 import IconifyIcon from '@/components/wrappers/IconifyIcon';
 import { developedBy } from '@/context/constants';
-import axiosClient from '@/helpers/httpClient';
+import httpClient from '@/helpers/httpClient';
 
 const features = [
   {
@@ -93,7 +93,7 @@ const About = () => {
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
-    axiosClient
+    httpClient
       .get('/api/public/stats', { silent: true })
       .then((res) => {
         if (res.data?.data) setStats(res.data.data);
@@ -130,7 +130,7 @@ const About = () => {
                 employee data, manual attendance tracking, siloed project management, and inefficient
                 communication. Everything you need is in one place.
               </p>
-              <Link to="/auth/sign-up" className="btn btn-primary mt-2">
+              <Link to="/auth/sign-in" className="btn btn-primary mt-2">
                 Get Started Free
               </Link>
             </Col>
@@ -209,7 +209,7 @@ const About = () => {
             Start managing your workforce smarter with {developedBy} — all your HR needs in one place.
           </p>
           <div className="d-flex gap-3 justify-content-center flex-wrap">
-            <Link to="/auth/sign-up" className="btn btn-light text-primary fw-semibold px-4">
+            <Link to="/auth/sign-in" className="btn btn-light text-primary fw-semibold px-4">
               Start Free Trial
             </Link>
             <Link to="/contact" className="btn btn-outline-light fw-semibold px-4">

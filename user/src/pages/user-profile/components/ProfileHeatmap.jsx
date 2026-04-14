@@ -6,15 +6,35 @@ const generateDummyData = () => {
     const data = [];
     const end = new Date();
     const start = new Date();
-    start.setFullYear(start.getFullYear() - 3); 
+    start.setFullYear(start.getFullYear() - 1); 
     
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        if (Math.random() < 0.12) { 
-            data.push({
-                day: d.toISOString().slice(0, 10),
-                value: Math.floor(Math.random() * 4) + 1 
-            });
+        const dayOfWeek = d.getUTCDay(); // 0: Sun, 6: Sat
+        let status = 'present'; // default
+        let value = 1;
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+          status = 'weekend';
+          value = 4;
+        } else {
+          const rand = Math.random();
+          if (rand < 0.05) {
+            status = 'full_leave';
+            value = 3;
+          } else if (rand < 0.1) {
+            status = 'half_leave';
+            value = 2;
+          } else {
+            status = 'present';
+            value = 1;
+          }
         }
+
+        data.push({
+            day: d.toISOString().slice(0, 10),
+            value: value,
+            status: status
+        });
     }
     return data;
 }
@@ -22,7 +42,7 @@ const generateDummyData = () => {
 const mockData = generateDummyData();
 
 export default function ProfileHeatmap() {
-  const [year, setYear] = useState("2023"); // defaulting to 2023 to match image selection
+  const [year, setYear] = useState("Current");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   
@@ -38,7 +58,7 @@ export default function ProfileHeatmap() {
 
   const today = new Date();
 
-  const { data, monthsData, stats } = useMemo(() => {
+  const { monthsData, stats } = useMemo(() => {
     let startDate;
     let endDate;
 
@@ -63,30 +83,32 @@ export default function ProfileHeatmap() {
 
     const dataMap = {};
     filteredData.forEach(d => {
-      dataMap[d.day] = d.value;
+      dataMap[d.day] = d;
     });
 
     let totalLeaves = 0;
-    let totalActiveDays = 0;
-    let currentStreak = 0;
+    let totalAttendance = 0;
     let maxStreak = 0;
+    let currentStreak = 0;
 
     let dIter = new Date(start);
     while (dIter <= end) {
       const dateStr = dIter.toISOString().slice(0, 10);
-      const val = dataMap[dateStr] || 0;
-      if (val > 0) {
-        totalLeaves += val;
-        totalActiveDays += 1;
-        currentStreak += 1;
-        if (currentStreak > maxStreak) maxStreak = currentStreak;
-      } else {
-        currentStreak = 0;
+      const dEntry = dataMap[dateStr];
+      if (dEntry) {
+        if (dEntry.status === 'full_leave') totalLeaves += 1;
+        if (dEntry.status === 'half_leave') totalLeaves += 0.5;
+        if (dEntry.status === 'present') {
+          totalAttendance += 1;
+          currentStreak += 1;
+          if (currentStreak > maxStreak) maxStreak = currentStreak;
+        } else if (dEntry.status !== 'weekend') {
+          currentStreak = 0;
+        }
       }
       dIter.setUTCDate(dIter.getUTCDate() + 1);
     }
 
-    // Generate grouped by month
     const groupedMonths = [];
     let currM = new Date(start);
     currM.setUTCDate(1); 
@@ -107,8 +129,7 @@ export default function ProfileHeatmap() {
       while (d.getUTCMonth() === mMonth && d <= end) {
         if (d >= start && d <= end) {
           const dateStr = d.toISOString().slice(0, 10);
-          const val = dataMap[dateStr] || 0;
-          currentWeek[d.getUTCDay()] = { date: dateStr, value: val };
+          currentWeek[d.getUTCDay()] = dataMap[dateStr] || { day: dateStr, value: 0, status: 'none' };
         } else {
           currentWeek[d.getUTCDay()] = null; 
         }
@@ -127,125 +148,152 @@ export default function ProfileHeatmap() {
       currM.setUTCMonth(currM.getUTCMonth() + 1);
     }
 
-    // Remove empty months (e.g. if start was late in a month)
-    const activeMonths = groupedMonths.filter(m => m.weeks.length > 0 && m.weeks.some(w => w.some(day => day !== null)));
-
     return { 
-      data: filteredData, 
-      monthsData: activeMonths, 
-      stats: { totalLeaves, totalActiveDays, maxStreak }
+      monthsData: groupedMonths.filter(m => m.weeks.length > 0), 
+      stats: { totalLeaves, totalAttendance, maxStreak }
     };
   }, [year]);
 
-  const getColor = (value) => {
-    if (value === 0) return "var(--bs-border-color, #ebedf0)"; // fallback to light gray for light mode
-    if (value === 1) return "#0e4429";
-    if (value === 2) return "#006d32";
-    if (value === 3) return "#26a641";
-    return "#39d353";
+  const getColor = (status) => {
+    switch (status) {
+      case 'present': return "#0e4429"; // Full Dark Green
+      case 'half_leave': return "#39d353"; // Standard Green
+      case 'full_leave': return "#cf222e"; // Red
+      case 'weekend': return "#e3b341"; // Dark Yellow
+      default: return "var(--bs-tertiary-bg, #ebedf0)";
+    }
   };
 
   const yearsOptions = ["Current", "2025", "2024", "2023"];
 
   return (
-    <div className="card border-0 shadow-sm" style={{ padding: '24px', borderRadius: '12px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif' }}>
+    <div className="card border-0 shadow-sm" style={{ padding: '24px', borderRadius: '12px' }}>
       
-      {/* Header */}
-      <div className="d-flex flex-wrap justify-content-between align-items-start mb-4 gap-3">
-        <div className="d-flex align-items-center gap-2">
-          <span className="fs-5 fw-bold text-body">{stats.totalLeaves}</span> 
-          <span className="text-secondary">leaves in the past one year</span>
-          <IconifyIcon icon="bx:info-circle" className="text-muted ms-1" style={{ cursor: 'help' }} />
+      {/* Header with Attendance/Leave Stats */}
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div className="d-flex align-items-center gap-4">
+          <div className="d-flex flex-column">
+            <span className="text-secondary small fw-medium text-uppercase ls-1">Applied Leaves</span>
+            <div className="d-flex align-items-baseline gap-2">
+              <span className="fs-3 fw-bold text-danger">{stats.totalLeaves}</span>
+              <span className="text-muted small">days</span>
+            </div>
+          </div>
+          <div className="vr opacity-10" style={{ height: '40px' }}></div>
+          <div className="d-flex flex-column text-center">
+            <span className="text-secondary small fw-medium text-uppercase ls-1">Office Attendance</span>
+            <div className="d-flex align-items-baseline gap-2">
+              <span className="fs-3 fw-bold text-success">{stats.totalAttendance}</span>
+              <span className="text-muted small">days</span>
+            </div>
+          </div>
         </div>
 
-        <div className="d-flex align-items-center gap-4 text-secondary" style={{ fontSize: '14px' }}>
-          <span>Total active days: <strong className="text-body fw-bold">{stats.totalActiveDays}</strong></span>
-          <span>Max streak: <strong className="text-body fw-bold">{stats.maxStreak}</strong></span>
-          
-          <div style={{ position: 'relative' }} ref={dropdownRef}>
-            <button 
-              className="btn btn-sm d-flex align-items-center gap-2"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              style={{
-                backgroundColor: 'var(--bs-tertiary-bg, #f6f8fa)', 
-                color: 'var(--bs-body-color, #24292f)', 
-                border: '1px solid var(--bs-border-color)', 
-                borderRadius: '6px', 
-                padding: '4px 12px', 
-                fontWeight: '500'
-              }}
+        <div style={{ position: 'relative' }} ref={dropdownRef}>
+          <button 
+            className="btn btn-light btn-sm fw-bold d-flex align-items-center gap-2 px-3 border-light-subtle rounded-pill"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            style={{ fontSize: '13px' }}
+          >
+            {year} Overview <IconifyIcon icon="bx:chevron-down" />
+          </button>
+          {dropdownOpen && (
+            <div 
+              className="dropdown-menu show shadow shadow-sm border-light-subtle"
+              style={{ position: 'absolute', top: '100%', right: 0, marginTop: '8px', zIndex: 10, borderRadius: '12px' }}
             >
-              {year} <IconifyIcon icon="bx:chevron-down" />
-            </button>
-            {dropdownOpen && (
-              <div 
-                className="dropdown-menu show shadow-sm"
-                style={{
-                  position: 'absolute', top: '100%', right: 0, marginTop: '6px',
-                  borderRadius: '8px', zIndex: 10, minWidth: '130px', padding: '6px 0',
-                  border: '1px solid var(--bs-border-color, #e1e4e8)'
-                }}
-              >
-                {yearsOptions.map(y => (
-                  <button 
-                    key={y}
-                    className="dropdown-item d-flex align-items-center justify-content-between text-body"
-                    onClick={() => { setYear(y); setDropdownOpen(false); }}
-                    style={{ padding: '8px 16px', fontSize: '13px' }}
-                  >
-                    {y}
-                    {year === y && <IconifyIcon icon="bx:check" style={{ color: '#39d353', fontSize: '16px' }} />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+              {yearsOptions.map(y => (
+                <button 
+                  key={y}
+                  className="dropdown-item d-flex align-items-center justify-content-between py-2 px-3 fw-medium"
+                  onClick={() => { setYear(y); setDropdownOpen(false); }}
+                >
+                  {y}
+                  {year === y && <IconifyIcon icon="bx:check" className="text-success" />}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Grouped Month Grid Wrapper */}
-      <div className="w-100" style={{ overflowX: 'auto', paddingBottom: '10px' }}>
-        <div className="d-flex" style={{ gap: '16px', minWidth: 'max-content' }}>
+      {/* Heatmap Container - Horizontal Scrolling enabled */}
+      <div className="w-100 custom-scrollbar-h" style={{ overflowX: 'auto', paddingBottom: '12px' }}>
+        <div className="d-flex align-items-start" style={{ gap: '12px', width: 'max-content' }}>
+          
+          <div className="d-flex flex-column justify-content-between pt-4 pb-1" style={{ height: '115px', fontSize: '10px', color: '#bbb', marginRight: '4px' }}>
+            <span>Mon</span>
+            <span>Wed</span>
+            <span>Fri</span>
+          </div>
+
           {monthsData.map((month, mIndex) => (
-            <div key={mIndex} className="d-flex flex-column" style={{ gap: '8px' }}>
-              <div className="d-flex" style={{ gap: '4px' }}>
+            <div key={mIndex} className="d-flex flex-column">
+              <span className="text-muted fw-bold mb-2 text-center" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
+                {month.monthName.toUpperCase()}
+              </span>
+              <div className="d-flex" style={{ gap: '3px', background: 'rgba(0,0,0,0.02)', padding: '6px', borderRadius: '8px' }}>
                 {month.weeks.map((week, wIndex) => (
-                  <div key={wIndex} className="d-flex flex-column" style={{ gap: '4px' }}>
-                    {week.map((day, dIndex) => {
-                      if (!day) return <div key={dIndex} style={{ width: '13px', height: '13px', borderRadius: '2px', backgroundColor: 'transparent' }} />;
-                      
-                      return (
-                        <OverlayTrigger
-                          key={dIndex}
-                          placement="top"
-                          overlay={
-                            <BSTooltip id={`tooltip-${day.date}`}>
-                              <strong>{day.value > 0 ? `${day.value} leave${day.value > 1 ? 's' : ''}` : 'No leaves'}</strong> on {day.date}
-                            </BSTooltip>
-                          }
-                        >
-                          <div 
-                            style={{
-                              width: '13px', height: '13px', 
-                              backgroundColor: getColor(day.value),
-                              borderRadius: '2px', cursor: 'pointer',
-                              border: day.value === 0 ? '1px solid rgba(128,128,128,0.1)' : 'none'
-                            }} 
-                          />
-                        </OverlayTrigger>
-                      );
-                    })}
+                  <div key={wIndex} className="d-flex flex-column" style={{ gap: '3px' }}>
+                    {week.map((day, dIndex) => (
+                      <OverlayTrigger
+                        key={dIndex}
+                        placement="top"
+                        overlay={
+                          <BSTooltip id={`tt-${day?.day || mIndex + wIndex + dIndex}`}>
+                            {day?.day ? (
+                              <>
+                                <strong>{day.status.replace('_', ' ').toUpperCase()}</strong><br/>
+                                {day.day}
+                              </>
+                            ) : 'No data'}
+                          </BSTooltip>
+                        }
+                      >
+                        <div 
+                          style={{
+                            width: '12px', height: '12px', 
+                            backgroundColor: day ? getColor(day.status) : 'transparent',
+                            borderRadius: '2px', cursor: day?.day ? 'pointer' : 'default',
+                            transition: 'transform 0.1s'
+                          }} 
+                          onMouseEnter={(e) => day?.day && (e.target.style.transform = 'scale(1.2)')}
+                          onMouseLeave={(e) => day?.day && (e.target.style.transform = 'scale(1)')}
+                        />
+                      </OverlayTrigger>
+                    ))}
                   </div>
                 ))}
-              </div>
-              <div className="text-muted" style={{ fontSize: '12px' }}>
-                {month.monthName}
               </div>
             </div>
           ))}
         </div>
       </div>
-      
+
+      {/* Modern Legend */}
+      <div className="d-flex align-items-center gap-3 mt-3 ms-auto pe-2" style={{ fontSize: '11px', color: '#888' }}>
+        <div className="d-flex align-items-center gap-1"><div style={{ width: 10, height: 10, borderRadius: 1, backgroundColor: '#0e4429' }} /> Full Work</div>
+        <div className="d-flex align-items-center gap-1"><div style={{ width: 10, height: 10, borderRadius: 1, backgroundColor: '#39d353' }} /> Half-Day</div>
+        <div className="d-flex align-items-center gap-1"><div style={{ width: 10, height: 10, borderRadius: 1, backgroundColor: '#cf222e' }} /> Full Leave</div>
+        <div className="d-flex align-items-center gap-1"><div style={{ width: 10, height: 10, borderRadius: 1, backgroundColor: '#e3b341' }} /> Weekend</div>
+      </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-scrollbar-h::-webkit-scrollbar {
+          height: 6px;
+        }
+        .custom-scrollbar-h::-webkit-scrollbar-track {
+          background: rgba(0,0,0,0.03);
+          border-radius: 10px;
+        }
+        .custom-scrollbar-h::-webkit-scrollbar-thumb {
+          background: rgba(0,0,0,0.1);
+          border-radius: 10px;
+        }
+        .custom-scrollbar-h::-webkit-scrollbar-thumb:hover {
+          background: rgba(0,0,0,0.2);
+        }
+      `}} />
     </div>
   );
 }

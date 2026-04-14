@@ -3,67 +3,62 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as yup from 'yup';
+import toast from 'react-hot-toast';
 import { useAuthContext } from '@/context/useAuthContext';
-import { useNotificationContext } from '@/context/useNotificationContext';
-import axiosClient from '@/helpers/axiosClient';
+import httpClient from '@/helpers/httpClient';
+
+const loginFormSchema = yup.object({
+  email: yup
+    .string()
+    .email('Please enter a valid email')
+    .required('Please enter your email'),
+  password: yup
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .required('Please enter your password'),
+});
+
 const useSignIn = () => {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const {
-    saveSession
-  } = useAuthContext();
-  const [searchParams] = useSearchParams();
-  const {
-    showNotification
-  } = useNotificationContext();
-  const loginFormSchema = yup.object({
-    email: yup.string().email('Please enter a valid email').required('Please enter your email'),
-    password: yup.string().required('Please enter your password')
-  });
-  const {
-    control,
-    handleSubmit
-  } = useForm({
+  const navigate              = useNavigate();
+  const [searchParams]        = useSearchParams();
+  const { login }             = useAuthContext();
+
+  const { control, handleSubmit } = useForm({
     resolver: yupResolver(loginFormSchema),
-    defaultValues: {
-      email: 'test@techzaa.com',
-      password: 'password'
-    }
+    defaultValues: { email: '', password: '' },
   });
+
   const redirectUser = () => {
     const redirectLink = searchParams.get('redirectTo');
-    if (redirectLink) navigate(redirectLink);else navigate('/');
+    if (redirectLink) navigate(redirectLink);
+    else navigate('/dashboard');
   };
-  const login = handleSubmit(async values => {
+
+  const onSubmit = handleSubmit(async (values) => {
+    setLoading(true);
     try {
-      const res = await axiosClient.post('/login', values);
-      if (res.data.token) {
-        saveSession({
-          ...(res.data ?? {}),
-          token: res.data.token
-        });
-        redirectUser();
-        showNotification({
-          message: 'Successfully logged in. Redirecting....',
-          variant: 'success'
-        });
-      }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (e) {
-      if (e.response?.data?.error) {
-        showNotification({
-          message: e.response?.data?.error,
-          variant: 'danger'
-        });
-      }
+      // POST /api/admin/auth/login — backend sets an HttpOnly session cookie
+      await httpClient.post('/admin/auth/login', values, { silent: true });
+
+      // Rehydrate auth state from the new cookie
+      await login();
+
+      toast.success('Login successful!');
+
+      setTimeout(redirectUser, 500);
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ??
+        err.response?.data?.error   ??
+        'Invalid credentials, please try again.';
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   });
-  return {
-    loading,
-    login,
-    control
-  };
+
+  return { loading, login: onSubmit, control };
 };
+
 export default useSignIn;
