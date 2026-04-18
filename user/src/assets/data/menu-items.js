@@ -13,45 +13,46 @@ export const MENU_ITEMS = [
     key: 'attendance',
     icon: 'iconamoon:profile-circle-duotone',
     label: 'Attendance',
-    url: '/attendance',
     roles: ['employee'],
-  },
-  {
-    key: 'permissions',
-    icon: 'iconamoon:shield-yes-duotone',
-    label: 'Permissions',
-    url: '/permissions',
-    roles: ['employee'],
-  },
-  {
-    key: 'leave',
-    icon: 'iconamoon:clock-duotone',
-    label: 'Leave',
-    url: '/leave',
-    roles: ['employee'],
+    children: [
+      { key: 'my-attendance',  label: 'My Attendance', url: '/attendance',  parentKey: 'attendance' },
+      { key: 'leave',          label: 'Leave',          url: '/leave',        parentKey: 'attendance' },
+      { key: 'permissions',    label: 'Permissions',    url: '/permissions',  parentKey: 'attendance' },
+    ],
   },
 
   // ── Manager-only ────────────────────────────────────────────────────────────
   {
-    key: 'team-attendance',
+    key: 'team-attendance-group',
     icon: 'iconamoon:profile-circle-duotone',
-    label: 'Team Attendance',
-    url: '/team-attendance',
+    label: 'Attendance',
     roles: ['manager'],
+    children: [
+      { key: 'team-attendance',  label: 'Team Attendance',  url: '/team-attendance',  parentKey: 'team-attendance-group' },
+      { key: 'team-leaves',      label: 'Team Leaves',      url: '/team-leaves',      parentKey: 'team-attendance-group' },
+      { key: 'team-permissions', label: 'Team Permissions', url: '/team-permissions', parentKey: 'team-attendance-group' },
+    ],
   },
+
   {
-    key: 'team-leaves',
-    icon: 'iconamoon:clock-duotone',
-    label: 'Team Leaves',
-    url: '/team-leaves',
+    key: 'teams-group',
+    icon: 'bxs:group',
+    label: 'Teams',
     roles: ['manager'],
+    children: [
+      { key: 'teams',         label: 'View All',      url: '/teams',         parentKey: 'teams-group' },
+      { key: 'project-teams', label: 'Project Teams', url: '/project-teams', parentKey: 'teams-group' },
+    ],
   },
+
   {
-    key: 'team-permissions',
-    icon: 'iconamoon:shield-yes-duotone',
-    label: 'Team Permissions',
-    url: '/team-permissions',
+    key: 'projects-group',
+    icon: 'iconamoon:folder-duotone',
+    label: 'Projects',
     roles: ['manager'],
+    children: [
+      { key: 'projects', label: 'View All', url: '/projects', parentKey: 'projects-group' },
+    ],
   },
 
   // ── Shared ──────────────────────────────────────────────────────────────────

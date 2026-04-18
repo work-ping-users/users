@@ -28,6 +28,11 @@ const TeamAttendancePage  = lazy(() => import('@/pages/manager/TeamAttendancePag
 const TeamLeavesPage      = lazy(() => import('@/pages/manager/TeamLeavesPage'));
 const TeamPermissionsPage = lazy(() => import('@/pages/manager/TeamPermissionsPage'));
 
+// Project & Team Management Pages
+const TeamsPage        = lazy(() => import('@/pages/Teams/TeamsPage'));
+const ProjectsPage     = lazy(() => import('@/pages/Projects/ProjectsPage'));
+const ProjectTeamsPage = lazy(() => import('@/pages/ProjectTeams/ProjectTeamsPage'));
+
 // roles: which roles can access this route. Omit = all authenticated. Admin bypasses all.
 export const userRoutes = [
   // ── Shared ────────────────────────────────────────────────────────────────
@@ -87,6 +92,26 @@ export const userRoutes = [
     name: 'Team Permissions',
     path: '/team-permissions',
     element: <TeamPermissionsPage />,
+    roles: ['manager'],
+  },
+
+  // ── Project & Team Management ──────────────────────────────────────────────
+  {
+    name: 'Teams',
+    path: '/teams',
+    element: <TeamsPage />,
+    roles: ['manager'],
+  },
+  {
+    name: 'Projects',
+    path: '/projects',
+    element: <ProjectsPage />,
+    roles: ['manager'],
+  },
+  {
+    name: 'Project Teams',
+    path: '/project-teams',
+    element: <ProjectTeamsPage />,
     roles: ['manager'],
   },
 ];
