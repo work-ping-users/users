@@ -11,7 +11,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use((config) => {
   const token = document.cookie
     .split('; ')
-    .find((row) => row.startsWith('_REBACK_AUTH_KEY_='))
+    .find((row) => row.startsWith('_WORKPING_AUTH_KEY_='))
     ?.split('=')[1];
 
   if (token) {

@@ -5,14 +5,7 @@ import ReactTable from '@/components/Table';
 import IconifyIcon from '@/components/wrappers/IconifyIcon';
 
 
-const initialPermissions = [
-  { id: 1, date: '21-10-2025', type: 'Early Leaving', reason: 'Aadhar Update', appliedOn: '21-10-2025 13:03:26', status: 'Approved' },
-  { id: 2, date: '27-09-2025', type: 'Early Leaving', reason: 'Going tirupathi', appliedOn: '27-09-2025 15:29:48', status: 'Approved' },
-  { id: 3, date: '12-09-2025', type: '1hour Permission', reason: 'Lovaraju sir event', appliedOn: '12-09-2025 14:19:48', status: 'Approved' },
-  { id: 4, date: '01-08-2024', type: '1hour Permission', reason: 'Health Issue', appliedOn: '01-08-2024 14:40:09', status: 'Approved' },
-  { id: 5, date: '16-03-2024', type: '1hour Permission', reason: 'Ashok sir house warming', appliedOn: '16-03-2024 13:13:03', status: 'Approved' },
-  { id: 6, date: '24-11-2023', type: '1hour Permission', reason: 'I am going to lovaraju sir marriage', appliedOn: '24-11-2023 15:33:54', status: 'Approved' },
-];
+const initialPermissions = [];
 
 const statusVariant = (status) => {
   switch (status) {

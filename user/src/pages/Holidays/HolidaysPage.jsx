@@ -2,6 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardBody, Col, Row, Spinner } from 'react-bootstrap';
 import PageMetaData from '@/components/PageTitle';
 import IconifyIcon from '@/components/wrappers/IconifyIcon';
+import httpClient from '@/helpers/httpClient';
+
+const formatDate = (iso) => {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+};
 
 const HolidaysPage = () => {
   const [holidaysList, setHolidaysList] = useState([]);
@@ -12,31 +22,14 @@ const HolidaysPage = () => {
     const fetchHolidays = async () => {
       try {
         setLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const mockBackendResponse = [
-          { sNo: 1, date: '01-01-2026', name: 'New Year' },
-          { sNo: 2, date: '11-01-2026 to 18-01-2026', name: 'Sankranthi Holidays' },
-          { sNo: 3, date: '26-01-2026', name: 'Republic day' },
-          { sNo: 4, date: '03-03-2026', name: 'Holi' },
-          { sNo: 5, date: '19-03-2026', name: 'Ugadi' },
-          { sNo: 6, date: '20-03-2026', name: 'Ramzan' },
-          { sNo: 7, date: '21-03-2026', name: 'Holiday' },
-          { sNo: 8, date: '27-03-2026', name: 'Sri Ramanavami' },
-          { sNo: 9, date: '03-04-2026', name: 'Good Friday' },
-          { sNo: 10, date: '14-04-2026', name: 'Dr.B.R.Ambedkar Jayanthi' },
-          { sNo: 11, date: '27-05-2026', name: 'Bakrid' },
-          { sNo: 12, date: '25-06-2026', name: 'Moharram' },
-        ];
-        
-        setHolidaysList(mockBackendResponse);
+        const res = await httpClient.get('/user/holiday/get-holidays', { silent: true });
+        setHolidaysList(res.data?.data ?? []);
       } catch (err) {
-        console.error('Error fetching holidays:', err);
         setError('Failed to load holidays from the server.');
       } finally {
         setLoading(false);
       }
     };
-    
     fetchHolidays();
   }, []);
 
@@ -48,7 +41,7 @@ const HolidaysPage = () => {
         <Col xs={12}>
           <Card>
             <CardBody className="d-flex flex-column align-items-center py-5">
-              
+
               <div className="d-flex mb-4 mt-2 shadow-sm rounded overflow-hidden border">
                 <div className="text-white px-4 py-2 d-flex align-items-center justify-content-center bg-primary">
                   <IconifyIcon icon="mdi:calendar-month-outline" height={20} width={20} />
@@ -101,9 +94,9 @@ const HolidaysPage = () => {
                         </tr>
                       ) : (
                         holidaysList.map((holiday, index) => (
-                          <tr key={holiday.sNo || index}>
-                            <td className="fw-medium px-4 py-3 text-muted" style={{ fontSize: '14px' }}>{holiday.sNo || index + 1}</td>
-                            <td className="fw-medium px-4 py-3 text-muted" style={{ fontSize: '14px' }}>{holiday.date}</td>
+                          <tr key={holiday._id ?? index}>
+                            <td className="fw-medium px-4 py-3 text-muted" style={{ fontSize: '14px' }}>{index + 1}</td>
+                            <td className="fw-medium px-4 py-3 text-muted" style={{ fontSize: '14px' }}>{formatDate(holiday.date)}</td>
                             <td className="fw-bold px-4 py-3" style={{ fontSize: '14px' }}>{holiday.name}</td>
                           </tr>
                         ))

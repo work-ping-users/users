@@ -14,9 +14,11 @@ import {
 } from 'react-bootstrap';
 
 import IconifyIcon from '@/components/wrappers/IconifyIcon';
+import { useAuthContext } from '@/context/useAuthContext';
 import avatar1 from '@/assets/images/users/avatar-1.jpg';
 
 const AboutCard = () => {
+  const { user } = useAuthContext();
   /* ---------- Links State ---------- */
   const [links, setLinks] = useState({
     github: '',
@@ -79,8 +81,8 @@ const AboutCard = () => {
         {/* ---------- User Info ---------- */}
         <div className="position-relative mb-3">
           <div className="text-center">
-            <h4 className="mb-1">Jeannette C. Mullin</h4>
-            <p className="fs-14 mb-0 text-muted">Front End Developer</p>
+            <h4 className="mb-1">{user?.name ?? 'My Profile'}</h4>
+            <p className="fs-14 mb-0 text-muted">{user?.designation ?? user?.role ?? ''}</p>
           </div>
 
           {/* ---------- Dropdown ---------- */}

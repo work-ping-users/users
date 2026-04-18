@@ -3,12 +3,28 @@ import AuthLayout   from '@/layouts/AuthLayout';
 import AdminLayout  from '@/layouts/AdminLayout';
 import PublicLayout from '@/layouts/PublicLayout';
 import { useAuthContext } from '@/context/useAuthContext';
+import { hasAccess } from '@/utils/rbac';
 import { appRoutes, authRoutes, publicRoutes } from '@/routes/index';
 
-// ── PrivateRoute — guards all app (admin) routes ────────────────────────────
-// Returns null while authLoading to prevent a flash-redirect on page refresh.
-const PrivateRoute = ({ children }) => {
-  // ── FOR DEVELOPMENT: Always allow access ─────────────────────────────────
+/**
+ * Guards authenticated routes.
+ * - Redirects to /auth/sign-in if not logged in.
+ * - Redirects to /unauthorized if the user's role is not in allowedRoles.
+ * - Admin bypasses role checks (handled inside hasAccess).
+ */
+const PrivateRoute = ({ children, roles }) => {
+  const { isAuthenticated, authLoading, role } = useAuthContext();
+
+  if (authLoading) return null;
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth/sign-in" replace />;
+  }
+
+  if (!hasAccess(role, roles)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   return children;
 };
 
@@ -24,7 +40,7 @@ const AppRouter = (props) => {
         />
       ))}
 
-      {/* Auth pages — sign-in, lock-screen, etc. */}
+      {/* Auth pages — sign-in, maintenance, etc. */}
       {(authRoutes || []).map((route, idx) => (
         <Route
           key={idx + route.name}
@@ -33,13 +49,13 @@ const AppRouter = (props) => {
         />
       ))}
 
-      {/* Protected app pages — wrapped in PrivateRoute */}
+      {/* Protected app pages — wrapped in PrivateRoute with per-route roles */}
       {(appRoutes || []).map((route, idx) => (
         <Route
           key={idx + route.name}
           path={route.path}
           element={
-            <PrivateRoute>
+            <PrivateRoute roles={route.roles}>
               <AdminLayout {...props}>{route.element}</AdminLayout>
             </PrivateRoute>
           }

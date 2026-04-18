@@ -22,7 +22,7 @@ const LockScreenOverlay = () => {
     setLoading(true);
     try {
       await httpClient.post(
-        '/admin/auth/verify-password',
+        '/auth/verify-password',
         { password },
         { silent: true }
       );
@@ -42,7 +42,7 @@ const LockScreenOverlay = () => {
   // ── Sign in as a different user ────────────────────────────────────────────
   const handleSwitch = async () => {
     try {
-      await httpClient.post('/admin/auth/logout', {}, { silent: true });
+      await httpClient.post('/auth/logout', {}, { silent: true });
     } catch { /* ignore */ }
     logout();
     unlock();

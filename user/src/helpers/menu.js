@@ -1,7 +1,10 @@
 import { MENU_ITEMS } from '@/assets/data/menu-items';
-export const getMenuItems = () => {
-  return MENU_ITEMS;
+import { hasAccess } from '@/utils/rbac';
+
+export const getMenuItems = (role) => {
+  return MENU_ITEMS.filter(item => hasAccess(role, item.roles));
 };
+
 export const findAllParent = (menuItems, menuItem) => {
   let parents = [];
   const parent = findMenuItem(menuItems, menuItem.parentKey);
@@ -13,6 +16,7 @@ export const findAllParent = (menuItems, menuItem) => {
   }
   return parents;
 };
+
 export const getMenuItemFromURL = (items, url) => {
   if (items instanceof Array) {
     for (const item of items) {
@@ -30,6 +34,7 @@ export const getMenuItemFromURL = (items, url) => {
     }
   }
 };
+
 export const findMenuItem = (menuItems, menuItemKey) => {
   if (menuItems && menuItemKey) {
     for (const item of menuItems) {

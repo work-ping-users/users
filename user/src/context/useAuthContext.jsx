@@ -3,6 +3,9 @@ import httpClient from '@/helpers/httpClient';
 
 const AuthContext = createContext(undefined);
 
+// /verify-cookie is mounted at root (not under /api), so strip the /api suffix
+const AUTH_ROOT = (import.meta.env.VITE_BASE_URL ?? import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/api\/?$/, '');
+
 export function useAuthContext() {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -12,43 +15,31 @@ export function useAuthContext() {
 }
 
 export function AuthProvider({ children }) {
-  // ── FOR DEVELOPMENT: Forced Auth Enabled ──────────────────────────────────
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [authLoading, setAuthLoading]         = useState(false);
-  const [user, setUser]                       = useState({
-    _id: "dev-id",
-    name: "Developer Mode",
-    email: "dev@workping.live",
-    role: "admin",
-    profileImage: null
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading]         = useState(true);
+  const [user, setUser]                       = useState(null);
 
-  // ── verifySession disabled during dev stage ────────────────────────────────
   const verifySession = useCallback(async () => {
-    // try {
-    //   const res  = await httpClient.get('/verify-cookie', { silent: true });
-    //   const data = res.data?.data ?? {};
-    //   setUser(data);
-    //   setIsAuthenticated(true);
-    // } catch {
-    //   setUser(null);
-    //   setIsAuthenticated(false);
-    // } finally {
-    //   setTimeout(() => setAuthLoading(false), 1000); 
-    // }
+    try {
+      const res  = await httpClient.get('/verify-cookie', { silent: true, baseURL: AUTH_ROOT });
+      const data = res.data?.data ?? {};
+      setUser(data);
+      setIsAuthenticated(true);
+    } catch {
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setAuthLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    // verifySession(); // disabled for dev
+    verifySession();
   }, [verifySession]);
 
-  // ── Called from LoginForm after POST /login succeeds ─────────────────────
   const login  = useCallback(() => verifySession(), [verifySession]);
-
-  // ── Called from sign-up flow after account creation ──────────────────────
   const signUp = useCallback(() => verifySession(), [verifySession]);
 
-  // ── Clears local state (backend cookie managed server-side) ──────────────
   const logout = useCallback(() => {
     setUser(null);
     setIsAuthenticated(false);

@@ -26,7 +26,7 @@ const LayoutProvider = ({
       size: queryParams['menu_size'] ? queryParams['menu_size'] : 'default'
     }
   };
-  const [settings, setSettings] = useLocalStorage('__REBACK_NEXT_CONFIG__', INIT_STATE,override);
+  const [settings, setSettings] = useLocalStorage('__WORKPING_CONFIG__', INIT_STATE, override);
 
   // Migrate old menu sizes (sm-hover-active, condensed, etc.) to 'default'
   useEffect(() => {

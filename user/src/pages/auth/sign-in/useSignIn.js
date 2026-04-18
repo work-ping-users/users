@@ -38,8 +38,8 @@ const useSignIn = () => {
   const onSubmit = handleSubmit(async (values) => {
     setLoading(true);
     try {
-      // POST /api/admin/auth/login — backend sets an HttpOnly session cookie
-      await httpClient.post('/admin/auth/login', values, { silent: true });
+      // POST /api/auth/login — backend sets an HttpOnly session cookie
+      await httpClient.post('/auth/login', { userEmail: values.email, password: values.password }, { silent: true });
 
       // Rehydrate auth state from the new cookie
       await login();
