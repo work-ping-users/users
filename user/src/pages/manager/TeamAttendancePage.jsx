@@ -32,17 +32,35 @@ const statusVariant = (s) => {
 
 const TeamAttendancePage = () => {
   const { user } = useAuthContext();
-  const [date, setDate]       = useState(today);
-  const [search, setSearch]   = useState('');
-  const [records, setRecords] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [date, setDate]           = useState(today);
+  const [search, setSearch]       = useState('');
+  const [records, setRecords]     = useState([]);
+  const [loading, setLoading]     = useState(false);
+  const [activeTeamId, setActiveTeamId] = useState(user?.teamId);
 
-  const fetchAttendance = async (selectedDate) => {
-    if (!user?.teamId) return;
+  useEffect(() => {
+    // If no teamId in user profile (likely a manager), fetch their managed teams
+    const loadDefaultTeam = async () => {
+      if (!user?.teamId && user?.role === 'manager') {
+        try {
+          const res = await httpClient.get('/admin/team/manager/all', { params: { limit: 1 }, silent: true });
+          const firstTeam = res.data?.data?.teamList?.[0];
+          if (firstTeam) setActiveTeamId(firstTeam._id);
+        } catch (err) {
+          console.error("Failed to load managed teams", err);
+        }
+      }
+    };
+    loadDefaultTeam();
+  }, [user]);
+
+  const fetchAttendance = async (selectedDate, teamId) => {
+    const tid = teamId || activeTeamId;
+    if (!tid) return;
     try {
       setLoading(true);
       const res = await httpClient.post('/admin/attendance/by-team', {
-        teamId: user.teamId,
+        teamId: tid,
         date: selectedDate,
       }, { silent: true });
       setRecords(res.data?.data?.records ?? []);
@@ -54,8 +72,9 @@ const TeamAttendancePage = () => {
   };
 
   useEffect(() => {
-    fetchAttendance(date);
-  }, [user?.teamId]);
+    if (activeTeamId) fetchAttendance(date, activeTeamId);
+  }, [activeTeamId]);
+
 
   const filtered = useMemo(() => {
     if (!search.trim()) return records;

@@ -39,8 +39,9 @@ const ProjectsPage = () => {
     if (!organizationId) { setLoading(false); return; }
     setLoading(true);
     try {
-      const res = await httpClient.get('/admin/project/get-projects', {
-        params: { organizationId, limit: 100 },
+      const endpoint = user?.role === 'manager' ? '/admin/project/manager/all' : '/admin/project/get-projects';
+      const res = await httpClient.get(endpoint, {
+        params: { organizationId: user?.role === 'admin' ? organizationId : undefined, limit: 100 },
         silent: true,
       });
       const d = res.data?.data ?? {};

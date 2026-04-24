@@ -30,6 +30,7 @@ const TeamPermissionsPage = lazy(() => import('@/pages/manager/TeamPermissionsPa
 
 // Project & Team Management Pages
 const TeamsPage        = lazy(() => import('@/pages/Teams/TeamsPage'));
+const ManagerTeamsPage = lazy(() => import('@/pages/Teams/ManagerTeamsPage'));
 const ProjectsPage     = lazy(() => import('@/pages/Projects/ProjectsPage'));
 const ProjectTeamsPage = lazy(() => import('@/pages/ProjectTeams/ProjectTeamsPage'));
 
@@ -99,6 +100,12 @@ export const userRoutes = [
   {
     name: 'Teams',
     path: '/teams',
+    element: <ManagerTeamsPage />,
+    roles: ['manager'],
+  },
+  {
+    name: 'Team Details',
+    path: '/teams/:teamId',
     element: <TeamsPage />,
     roles: ['manager'],
   },

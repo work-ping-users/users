@@ -31,8 +31,8 @@ const TeamLeavesPage = () => {
     if (!user?.organizationId) return;
     try {
       setLoading(true);
-      const res = await httpClient.get('/admin/leaves/all', {
-        params: { organizationId: user.organizationId, limit: 100 },
+      const res = await httpClient.get('/admin/leaves/manager/team-leaves', {
+        params: { limit: 100 },
         silent: true,
       });
       setLeaves(res.data?.data?.leaves ?? []);

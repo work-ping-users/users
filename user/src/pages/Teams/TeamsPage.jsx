@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Badge, Button, Card, CardBody, CardHeader, Col, Form,
@@ -13,6 +14,7 @@ const WORK_TYPES = ['remote', 'onsite', 'hybrid'];
 
 const TeamsPage = () => {
   const { user } = useAuthContext();
+  const { teamId: urlTeamId } = useParams();
 
   const [members, setMembers]         = useState([]);
   const [loading, setLoading]         = useState(true);
@@ -30,7 +32,7 @@ const TeamsPage = () => {
   // Remove
   const [removing, setRemoving]       = useState(null);
 
-  const teamId        = user?.teamId;
+  const teamId        = urlTeamId || user?.teamId;
   const organizationId = user?.organizationId;
 
   const fetchMembers = useCallback(async () => {
