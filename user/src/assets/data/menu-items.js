@@ -1,5 +1,15 @@
 // roles: which roles can see this item. Omit or [] means all authenticated users.
 export const MENU_ITEMS = [
+  // ── Team Lead (non-employee, non-manager) ───────────────────────────────────
+  {
+    key: 'organisation',
+    icon: 'bx:building-house',
+    label: 'My Organisation',
+    url: '/organisation',
+    roles: ['teamLead'],
+  },
+
+  // ── Shared ──────────────────────────────────────────────────────────────────
   {
     key: 'dashboard',
     icon: 'iconamoon:home-duotone',
@@ -18,6 +28,17 @@ export const MENU_ITEMS = [
       { key: 'my-attendance',  label: 'My Attendance', url: '/attendance',  parentKey: 'attendance' },
       { key: 'leave',          label: 'Leave',          url: '/leave',        parentKey: 'attendance' },
       { key: 'permissions',    label: 'Permissions',    url: '/permissions',  parentKey: 'attendance' },
+    ],
+  },
+
+  {
+    key: 'my-workspace',
+    icon: 'bxs:grid-alt',
+    label: 'My Workspace',
+    roles: ['employee'],
+    children: [
+      { key: 'my-team',     label: 'My Team',     url: '/my-team',     parentKey: 'my-workspace' },
+      { key: 'my-projects', label: 'My Projects', url: '/my-projects', parentKey: 'my-workspace' },
     ],
   },
 
@@ -61,6 +82,6 @@ export const MENU_ITEMS = [
     icon: 'iconamoon:calendar-1-duotone',
     label: 'Holidays',
     url: '/holidays',
-    roles: ['employee', 'manager'],
+    roles: ['employee', 'manager', 'teamLead'],
   },
 ];

@@ -1,5 +1,6 @@
 import { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useAuthContext } from '@/context/useAuthContext';
 
 // Public Pages
 const AboutPage              = lazy(() => import('@/pages/public/About/page'));
@@ -13,15 +14,17 @@ const NotFound    = lazy(() => import('@/app/(other)/(error-pages)/error-404/pag
 const Maintenance = lazy(() => import('@/app/(other)/maintenance/page'));
 
 // Shared App Pages
-const Dashboard   = lazy(() => import('@/app/(admin)/dashboard/analytics/page'));
-const HolidaysPage = lazy(() => import('@/pages/Holidays/HolidaysPage'));
-const UserProfile  = lazy(() => import('@/pages/user-profile/UserProfile'));
-const Unauthorized = lazy(() => import('@/pages/Unauthorized'));
+const Dashboard      = lazy(() => import('@/app/(admin)/dashboard/analytics/page'));
+const HolidaysPage   = lazy(() => import('@/pages/Holidays/HolidaysPage'));
+const UserProfile    = lazy(() => import('@/pages/user-profile/UserProfile'));
+const Unauthorized   = lazy(() => import('@/pages/Unauthorized'));
 
 // Employee-only Pages
 const AttendancePage  = lazy(() => import('@/pages/Attendance/AttendancePage'));
 const PermissionsPage = lazy(() => import('@/pages/Permissions/PermissionsPage'));
 const LeavePage       = lazy(() => import('@/pages/Leave/LeavePage'));
+const MyTeamPage      = lazy(() => import('@/pages/MyTeam/MyTeamPage'));
+const MyProjectsPage  = lazy(() => import('@/pages/MyProjects/MyProjectsPage'));
 
 // Manager-only Pages
 const TeamAttendancePage  = lazy(() => import('@/pages/manager/TeamAttendancePage'));
@@ -33,6 +36,16 @@ const TeamsPage        = lazy(() => import('@/pages/Teams/TeamsPage'));
 const ManagerTeamsPage = lazy(() => import('@/pages/Teams/ManagerTeamsPage'));
 const ProjectsPage     = lazy(() => import('@/pages/Projects/ProjectsPage'));
 const ProjectTeamsPage = lazy(() => import('@/pages/ProjectTeams/ProjectTeamsPage'));
+
+// Team Lead Pages
+const OrganisationPage = lazy(() => import('@/pages/Organisation/OrganisationPage'));
+
+// Redirects authenticated users to their home page based on role
+const RootRedirect = () => {
+  const { role } = useAuthContext();
+  if (role === 'employee' || role === 'manager') return <Navigate to="/dashboard" replace />;
+  return <Navigate to="/organisation" replace />;
+};
 
 // roles: which roles can access this route. Omit = all authenticated. Admin bypasses all.
 export const userRoutes = [
@@ -47,13 +60,13 @@ export const userRoutes = [
     name: 'Holidays',
     path: '/holidays',
     element: <HolidaysPage />,
-    roles: ['employee', 'manager'],
+    roles: ['employee', 'manager', 'teamLead'],
   },
   {
     name: 'User Profile',
     path: '/user-profile',
     element: <UserProfile />,
-    roles: ['employee', 'manager'],
+    roles: ['employee', 'manager', 'teamLead'],
   },
 
   // ── Employee-only ──────────────────────────────────────────────────────────
@@ -73,6 +86,18 @@ export const userRoutes = [
     name: 'Leave',
     path: '/leave',
     element: <LeavePage />,
+    roles: ['employee'],
+  },
+  {
+    name: 'My Team',
+    path: '/my-team',
+    element: <MyTeamPage />,
+    roles: ['employee'],
+  },
+  {
+    name: 'My Projects',
+    path: '/my-projects',
+    element: <MyProjectsPage />,
     roles: ['employee'],
   },
 
@@ -121,6 +146,14 @@ export const userRoutes = [
     element: <ProjectTeamsPage />,
     roles: ['manager'],
   },
+
+  // ── Team Lead ─────────────────────────────────────────────────────────────
+  {
+    name: 'Organisation',
+    path: '/organisation',
+    element: <OrganisationPage />,
+    roles: ['teamLead'],
+  },
 ];
 
 // Public Routes — no auth required, uses PublicLayout
@@ -140,9 +173,9 @@ export const authRoutes = [
 
 // Root + catch-all
 const initialRoutes = [
-  { path: '/',           name: 'root',       element: <Navigate to="/dashboard" /> },
-  { path: '/unauthorized', name: 'unauth',   element: <Unauthorized />, roles: [] },
-  { path: '*',           name: 'not-found',  element: <NotFound /> },
+  { path: '/',            name: 'root',   element: <RootRedirect /> },
+  { path: '/unauthorized', name: 'unauth', element: <Unauthorized />, roles: [] },
+  { path: '*',            name: 'not-found', element: <NotFound /> },
 ];
 
 export const appRoutes = [...initialRoutes, ...userRoutes];
