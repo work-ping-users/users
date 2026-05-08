@@ -1,9 +1,0 @@
-export const currency = '$';
-export const currentYear = new Date().getFullYear();
-export const developedByLink = 'https://workping.live';
-export const developedBy = 'WorkPing';
-export const contactUs = 'support@workping.live';
-export const buyLink = '';
-export const basePath = '';
-export const DEFAULT_PAGE_TITLE = 'WorkPing | Workforce Management';
-export const colorVariants = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'dark', 'purple', 'pink', 'orange', 'light', 'link'];

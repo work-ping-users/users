@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(npm list:*)",
-      "Bash(ls \"e:/FaceRecognization/work-ping-user/users/user/src/app/\\(admin\\)/dashboard/\")",
-      "Bash(ls \"e:/FaceRecognization/work-ping-user/users/user/src/app/\\(admin\\)/dashboard/analytics/\")"
-    ]
-  }
-}
