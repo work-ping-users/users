@@ -1,51 +1,54 @@
-import { useMemo, useState } from 'react';
-import { Badge, Button, Card, CardBody, CardHeader, Col, Form, Row } from 'react-bootstrap';
-import PageMetaData from '@/components/PageTitle';
-import ReactTable from '@/components/Table';
-import IconifyIcon from '@/components/wrappers/IconifyIcon';
+import { useMemo, useState } from 'react'
+import { Badge, Button, Card, CardBody, CardHeader, Col, Form, Row } from 'react-bootstrap'
+import PageMetaData from '@/components/PageTitle'
+import ReactTable from '@/components/Table'
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
 
-
-const initialPermissions = [];
+const initialPermissions = []
 
 const statusVariant = (status) => {
   switch (status) {
-    case 'Approved': return 'success';
-    case 'Pending': return 'warning';
-    case 'Rejected': return 'danger';
-    default: return 'secondary';
+    case 'Approved':
+      return 'success'
+    case 'Pending':
+      return 'warning'
+    case 'Rejected':
+      return 'danger'
+    default:
+      return 'secondary'
   }
-};
+}
 
-const today = new Date().toISOString().split('T')[0];
+const today = new Date().toISOString().split('T')[0]
 
 const PermissionsPage = () => {
-  const [permissions, setPermissions] = useState(initialPermissions);
-  const [form, setForm] = useState({ date: '', type: '', reason: '' });
-  const [errors, setErrors] = useState({});
+  const [permissions, setPermissions] = useState(initialPermissions)
+  const [form, setForm] = useState({ date: '', type: '', reason: '' })
+  const [errors, setErrors] = useState({})
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));
-  };
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+    setErrors((prev) => ({ ...prev, [name]: '' }))
+  }
 
   const validate = () => {
-    const newErrors = {};
-    if (!form.date) newErrors.date = 'Date is required.';
-    if (!form.type) newErrors.type = 'Type is required.';
-    if (!form.reason.trim()) newErrors.reason = 'Reason is required.';
-    return newErrors;
-  };
+    const newErrors = {}
+    if (!form.date) newErrors.date = 'Date is required.'
+    if (!form.type) newErrors.type = 'Type is required.'
+    if (!form.reason.trim()) newErrors.reason = 'Reason is required.'
+    return newErrors
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    const validationErrors = validate();
+    e.preventDefault()
+    const validationErrors = validate()
     if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
+      setErrors(validationErrors)
+      return
     }
-    const now = new Date();
-    const appliedOn = `${form.date} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+    const now = new Date()
+    const appliedOn = `${form.date} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`
     const newEntry = {
       id: permissions.length + 1,
       date: form.date,
@@ -53,10 +56,10 @@ const PermissionsPage = () => {
       reason: form.reason,
       appliedOn,
       status: 'Pending',
-    };
-    setPermissions((prev) => [newEntry, ...prev]);
-    setForm({ date: '', type: '', reason: '' });
-  };
+    }
+    setPermissions((prev) => [newEntry, ...prev])
+    setForm({ date: '', type: '', reason: '' })
+  }
 
   const columns = useMemo(
     () => [
@@ -108,8 +111,8 @@ const PermissionsPage = () => {
           ),
       },
     ],
-    []
-  );
+    [],
+  )
 
   return (
     <>
@@ -131,14 +134,7 @@ const PermissionsPage = () => {
                   <Col md={3}>
                     <Form.Group>
                       <Form.Label className="fw-semibold">Date</Form.Label>
-                      <Form.Control
-                        type="date"
-                        name="date"
-                        value={form.date}
-                        min={today}
-                        onChange={handleChange}
-                        isInvalid={!!errors.date}
-                      />
+                      <Form.Control type="date" name="date" value={form.date} min={today} onChange={handleChange} isInvalid={!!errors.date} />
                       <Form.Control.Feedback type="invalid">{errors.date}</Form.Control.Feedback>
                     </Form.Group>
                   </Col>
@@ -207,7 +203,7 @@ const PermissionsPage = () => {
         </Col>
       </Row>
     </>
-  );
-};
+  )
+}
 
-export default PermissionsPage;
+export default PermissionsPage

@@ -1,11 +1,12 @@
-import { lazy, Suspense } from 'react';
-import LeftSideBarToggle from './components/LeftSideBarToggle';
-import ProfileDropdown from './components/ProfileDropdown';
-import SearchBox from './components/SearchBox';
-import ThemeModeToggle from './components/ThemeModeToggle';
-const Notifications = lazy(() => import('./components/Notifications'));
+import { lazy, Suspense } from 'react'
+import LeftSideBarToggle from './components/LeftSideBarToggle'
+import ProfileDropdown from './components/ProfileDropdown'
+import SearchBox from './components/SearchBox'
+import ThemeModeToggle from './components/ThemeModeToggle'
+const Notifications = lazy(() => import('./components/Notifications'))
 const TopNavigationBar = () => {
-  return <header className="topbar">
+  return (
+    <header className="topbar">
       <div className="container-xxl">
         <div className="navbar-header">
           <div className="d-flex align-items-center gap-2">
@@ -26,6 +27,7 @@ const TopNavigationBar = () => {
           </div>
         </div>
       </div>
-    </header>;
-};
-export default TopNavigationBar;
+    </header>
+  )
+}
+export default TopNavigationBar

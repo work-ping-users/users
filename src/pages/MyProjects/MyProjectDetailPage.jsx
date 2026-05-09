@@ -1,135 +1,155 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { Badge, Card, CardBody, CardHeader, Col, Row, Spinner } from 'react-bootstrap';
-import PageMetaData from '@/components/PageTitle';
-import ReactTable from '@/components/Table';
-import IconifyIcon from '@/components/wrappers/IconifyIcon';
-import httpClient from '@/helpers/httpClient';
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
+import { Badge, Card, CardBody, CardHeader, Col, Row, Spinner } from 'react-bootstrap'
+import PageMetaData from '@/components/PageTitle'
+import ReactTable from '@/components/Table'
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import httpClient from '@/helpers/httpClient'
 
-const STATUS_BADGE = { active: 'success', completed: 'primary', onHold: 'warning' };
-const STATUS_LABEL = { active: 'Active', completed: 'Completed', onHold: 'On Hold' };
-const ROLE_BADGE   = { employee: 'secondary', manager: 'primary', teamLead: 'warning' };
-const WORK_BADGE   = (w) => (w === 'remote' ? 'info' : w === 'onsite' ? 'success' : 'warning');
+const STATUS_BADGE = { active: 'success', completed: 'primary', onHold: 'warning' }
+const STATUS_LABEL = { active: 'Active', completed: 'Completed', onHold: 'On Hold' }
+const ROLE_BADGE = { employee: 'secondary', manager: 'primary', teamLead: 'warning' }
+const WORK_BADGE = (w) => (w === 'remote' ? 'info' : w === 'onsite' ? 'success' : 'warning')
 
-const fmtDate = (d) =>
-  d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+const fmtDate = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—')
 
 const Avatar = ({ name, size = 36 }) => (
   <span
     className="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
-    style={{ width: size, height: size, fontSize: size * 0.38 }}
-  >
+    style={{ width: size, height: size, fontSize: size * 0.38 }}>
     {(name ?? '?').charAt(0).toUpperCase()}
   </span>
-);
+)
 
 const InfoBox = ({ label, children }) => (
   <div className="border rounded-3 p-3 h-100">
     <div className="text-muted fs-12 text-uppercase fw-semibold mb-1">{label}</div>
     <div className="fw-semibold">{children}</div>
   </div>
-);
+)
 
 const MyProjectDetailPage = () => {
-  const { projectId } = useParams();
-  const location      = useLocation();
-  const navigate      = useNavigate();
+  const { projectId } = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
 
   // project passed via Link state as a fast preview; we'll replace with full data
-  const [project, setProject]   = useState(location.state?.project ?? null);
-  const [members, setMembers]   = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [search, setSearch]     = useState('');
+  const [project, setProject] = useState(location.state?.project ?? null)
+  const [members, setMembers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
 
   const fetchDetail = useCallback(async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       // Single call: returns { project, members } with shift populated and projectRole per member
-      const res = await httpClient.get(`/user/projects/${projectId}`, { silent: true });
-      const { project: proj, members: mems } = res.data?.data ?? {};
-      if (proj) setProject(proj);
-      setMembers(mems ?? []);
+      const res = await httpClient.get(`/user/projects/${projectId}`, { silent: true })
+      const { project: proj, members: mems } = res.data?.data ?? {}
+      if (proj) setProject(proj)
+      setMembers(mems ?? [])
     } catch {
-      setMembers([]);
+      setMembers([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [projectId]);
+  }, [projectId])
 
-  useEffect(() => { fetchDetail(); }, [fetchDetail]);
+  useEffect(() => {
+    fetchDetail()
+  }, [fetchDetail])
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return members;
+    const q = search.trim().toLowerCase()
+    if (!q) return members
     return members.filter(
       (m) =>
         (m.user?.name ?? '').toLowerCase().includes(q) ||
         (m.user?.email ?? '').toLowerCase().includes(q) ||
         (m.user?.employeeId ?? '').toLowerCase().includes(q),
-    );
-  }, [members, search]);
+    )
+  }, [members, search])
 
-  const stats = useMemo(() => ({
-    total:    members.length,
-    remote:   members.filter((m) => m.user?.workType === 'remote').length,
-    onsite:   members.filter((m) => m.user?.workType === 'onsite').length,
-    managers: members.filter((m) => m.projectRole === 'manager').length,
-  }), [members]);
+  const stats = useMemo(
+    () => ({
+      total: members.length,
+      remote: members.filter((m) => m.user?.workType === 'remote').length,
+      onsite: members.filter((m) => m.user?.workType === 'onsite').length,
+      managers: members.filter((m) => m.projectRole === 'manager').length,
+    }),
+    [members],
+  )
 
-  const columns = useMemo(() => [
-    {
-      header: 'S.No', id: 'sno',
-      cell: ({ row }) => <span className="fw-medium">{row.index + 1}</span>,
-    },
-    {
-      header: 'Member', id: 'member',
-      cell: ({ row }) => {
-        const u = row.original.user;
-        return (
-          <div className="d-flex align-items-center gap-2">
-            <Avatar name={u?.name} size={36} />
-            <div>
-              <div className="fw-semibold">{u?.name ?? '—'}</div>
-              <div className="text-muted fs-12">{u?.email ?? '—'}</div>
+  const columns = useMemo(
+    () => [
+      {
+        header: 'S.No',
+        id: 'sno',
+        cell: ({ row }) => <span className="fw-medium">{row.index + 1}</span>,
+      },
+      {
+        header: 'Member',
+        id: 'member',
+        cell: ({ row }) => {
+          const u = row.original.user
+          return (
+            <div className="d-flex align-items-center gap-2">
+              <Avatar name={u?.name} size={36} />
+              <div>
+                <div className="fw-semibold">{u?.name ?? '—'}</div>
+                <div className="text-muted fs-12">{u?.email ?? '—'}</div>
+              </div>
             </div>
-          </div>
-        );
+          )
+        },
       },
-    },
-    {
-      header: 'Employee ID', id: 'empId',
-      cell: ({ row }) => row.original.user?.employeeId ?? '—',
-    },
-    {
-      header: 'Project Role', id: 'role',
-      cell: ({ row }) => {
-        const r = row.original.projectRole;
-        return r
-          ? <Badge bg={ROLE_BADGE[r] ?? 'secondary'} className="px-2 py-1 text-capitalize">{r === 'teamLead' ? 'Team Lead' : r}</Badge>
-          : '—';
+      {
+        header: 'Employee ID',
+        id: 'empId',
+        cell: ({ row }) => row.original.user?.employeeId ?? '—',
       },
-    },
-    {
-      header: 'Shift / Work Type', id: 'workType',
-      cell: ({ row }) => {
-        const w = row.original.user?.workType;
-        return w
-          ? <Badge bg={WORK_BADGE(w)} className="px-2 py-1 text-capitalize">{w}</Badge>
-          : '—';
+      {
+        header: 'Project Role',
+        id: 'role',
+        cell: ({ row }) => {
+          const r = row.original.projectRole
+          return r ? (
+            <Badge bg={ROLE_BADGE[r] ?? 'secondary'} className="px-2 py-1 text-capitalize">
+              {r === 'teamLead' ? 'Team Lead' : r}
+            </Badge>
+          ) : (
+            '—'
+          )
+        },
       },
-    },
-    {
-      header: 'Assigned', id: 'assigned',
-      cell: ({ row }) => <span className="text-nowrap">{fmtDate(row.original.assignedDate)}</span>,
-    },
-  ], []);
+      {
+        header: 'Shift / Work Type',
+        id: 'workType',
+        cell: ({ row }) => {
+          const w = row.original.user?.workType
+          return w ? (
+            <Badge bg={WORK_BADGE(w)} className="px-2 py-1 text-capitalize">
+              {w}
+            </Badge>
+          ) : (
+            '—'
+          )
+        },
+      },
+      {
+        header: 'Assigned',
+        id: 'assigned',
+        cell: ({ row }) => <span className="text-nowrap">{fmtDate(row.original.assignedDate)}</span>,
+      },
+    ],
+    [],
+  )
 
   if (loading && !project) {
     return (
       <div className="d-flex align-items-center justify-content-center" style={{ minHeight: 300 }}>
         <Spinner animation="border" variant="primary" />
       </div>
-    );
+    )
   }
 
   if (!loading && !project) {
@@ -146,7 +166,7 @@ const MyProjectDetailPage = () => {
           </CardBody>
         </Card>
       </>
-    );
+    )
   }
 
   return (
@@ -166,8 +186,7 @@ const MyProjectDetailPage = () => {
           <div className="d-flex align-items-start gap-3 mb-3">
             <div
               className="bg-primary-subtle rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
-              style={{ width: 56, height: 56 }}
-            >
+              style={{ width: 56, height: 56 }}>
               <IconifyIcon icon="bx:briefcase-alt-2" className="text-primary" style={{ fontSize: 28 }} />
             </div>
             <div className="flex-grow-1">
@@ -194,9 +213,7 @@ const MyProjectDetailPage = () => {
             </div>
           </div>
 
-          {project?.description && (
-            <p className="text-muted fs-14 mb-3">{project.description}</p>
-          )}
+          {project?.description && <p className="text-muted fs-14 mb-3">{project.description}</p>}
 
           <Row className="g-3">
             <Col xs={6} md={3}>
@@ -223,9 +240,7 @@ const MyProjectDetailPage = () => {
                     <Avatar name={project.projectManager.name} size={28} />
                     <div>
                       <div>{project.projectManager.name}</div>
-                      {project.projectManager.email && (
-                        <div className="text-muted fs-12 fw-normal">{project.projectManager.email}</div>
-                      )}
+                      {project.projectManager.email && <div className="text-muted fs-12 fw-normal">{project.projectManager.email}</div>}
                     </div>
                   </div>
                 </InfoBox>
@@ -238,24 +253,21 @@ const MyProjectDetailPage = () => {
       {/* Member stats */}
       <Row className="g-3 mb-3">
         {[
-          { label: 'Total Members', value: stats.total,    color: 'primary', icon: 'bxs:group' },
-          { label: 'Remote',        value: stats.remote,   color: 'info',    icon: 'bx:wifi' },
-          { label: 'Onsite',        value: stats.onsite,   color: 'success', icon: 'bx:buildings' },
-          { label: 'Managers',      value: stats.managers, color: 'warning', icon: 'bx:crown' },
+          { label: 'Total Members', value: stats.total, color: 'primary', icon: 'bxs:group' },
+          { label: 'Remote', value: stats.remote, color: 'info', icon: 'bx:wifi' },
+          { label: 'Onsite', value: stats.onsite, color: 'success', icon: 'bx:buildings' },
+          { label: 'Managers', value: stats.managers, color: 'warning', icon: 'bx:crown' },
         ].map(({ label, value, color, icon }) => (
           <Col key={label} xs={6} md={3}>
             <Card className="border-0 shadow-sm">
               <CardBody className="d-flex align-items-center gap-3 py-3">
                 <div
                   className={`bg-${color}-subtle rounded-circle d-flex align-items-center justify-content-center`}
-                  style={{ width: 44, height: 44, flexShrink: 0 }}
-                >
+                  style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <IconifyIcon icon={icon} className={`text-${color} fs-4`} />
                 </div>
                 <div>
-                  <div className="fw-bold fs-4">
-                    {loading ? <Spinner size="sm" animation="border" /> : value}
-                  </div>
+                  <div className="fw-bold fs-4">{loading ? <Spinner size="sm" animation="border" /> : value}</div>
                   <div className="text-muted small">{label}</div>
                 </div>
               </CardBody>
@@ -270,7 +282,9 @@ const MyProjectDetailPage = () => {
           <div className="d-flex align-items-center justify-content-between mb-2">
             <h5 className="mb-0 fw-semibold">Project Members</h5>
             {!loading && (
-              <Badge bg="primary-subtle" text="primary">{members.length}</Badge>
+              <Badge bg="primary-subtle" text="primary">
+                {members.length}
+              </Badge>
             )}
           </div>
           <input
@@ -307,7 +321,7 @@ const MyProjectDetailPage = () => {
         </CardBody>
       </Card>
     </>
-  );
-};
+  )
+}
 
-export default MyProjectDetailPage;
+export default MyProjectDetailPage

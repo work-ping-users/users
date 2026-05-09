@@ -1,49 +1,49 @@
-import { MENU_ITEMS } from '@/assets/data/menu-items';
-import { hasAccess } from '@/utils/rbac';
+import { MENU_ITEMS } from '@/assets/data/menu-items'
+import { hasAccess } from '@/utils/rbac'
 
 export const getMenuItems = (role) => {
-  return MENU_ITEMS.filter(item => hasAccess(role, item.roles));
-};
+  return MENU_ITEMS.filter((item) => hasAccess(role, item.roles))
+}
 
 export const findAllParent = (menuItems, menuItem) => {
-  let parents = [];
-  const parent = findMenuItem(menuItems, menuItem.parentKey);
+  let parents = []
+  const parent = findMenuItem(menuItems, menuItem.parentKey)
   if (parent) {
-    parents.push(parent.key);
+    parents.push(parent.key)
     if (parent.parentKey) {
-      parents = [...parents, ...findAllParent(menuItems, parent)];
+      parents = [...parents, ...findAllParent(menuItems, parent)]
     }
   }
-  return parents;
-};
+  return parents
+}
 
 export const getMenuItemFromURL = (items, url) => {
   if (items instanceof Array) {
     for (const item of items) {
-      const foundItem = getMenuItemFromURL(item, url);
+      const foundItem = getMenuItemFromURL(item, url)
       if (foundItem) {
-        return foundItem;
+        return foundItem
       }
     }
   } else {
-    if (items.url == url) return items;
+    if (items.url == url) return items
     if (items.children != null) {
       for (const item of items.children) {
-        if (item.url == url) return item;
+        if (item.url == url) return item
       }
     }
   }
-};
+}
 
 export const findMenuItem = (menuItems, menuItemKey) => {
   if (menuItems && menuItemKey) {
     for (const item of menuItems) {
       if (item.key === menuItemKey) {
-        return item;
+        return item
       }
-      const found = findMenuItem(item.children, menuItemKey);
-      if (found) return found;
+      const found = findMenuItem(item.children, menuItemKey)
+      if (found) return found
     }
   }
-  return null;
-};
+  return null
+}

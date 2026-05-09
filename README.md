@@ -1,30 +1,53 @@
-# React + TypeScript + Vite
+# WorkPing Employee Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The employee-facing web dashboard for WorkPing. Allows employees to mark attendance, manage leave requests, view salary slips, check shift schedules, and track their own attendance history.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Framework**: React 18 + Vite 5
+- **Routing**: React Router v6
+- **Forms**: React Hook Form + Yup
+- **Charts**: ApexCharts, Nivo Calendar
+- **Calendar**: FullCalendar
+- **Webcam**: react-webcam (for browser-based face check-in)
+- **Styling**: Bootstrap 5 + SASS
+- **HTTP**: Axios
 
-## Expanding the ESLint configuration
+## Features
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- Face recognition attendance (webcam-based check-in/check-out)
+- Leave application and approval status tracking
+- Salary slip view and Excel download
+- Shift schedule calendar
+- Attendance history with monthly heatmap (Nivo)
+- Holiday calendar
+- Profile management
 
-- Configure the top-level `parserOptions` property like this:
+## Getting Started
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+```bash
+npm install
+cp .env.example .env   # fill in your API base URL
+npm run dev
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+## Environment Variables
+
+| Variable | Description |
+|---|---|
+| `VITE_API_BASE_URL` | URL of the centralized API server |
+| `VITE_FACE_API_URL` | URL of the face recognition microservice |
+
+## Build
+
+```bash
+npm run build     # outputs to dist/
+npm run preview   # preview production build locally
+```
+
+## Related Services
+
+- [workping-api](../centralized-server) — core backend API
+- [workping-biometric](../face-api-microservice) — face recognition engine
+- [workping-admin](../admin-ui) — admin control panel
+- [workping-mobile](../mobile-app) — native mobile alternative

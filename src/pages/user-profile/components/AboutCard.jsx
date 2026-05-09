@@ -1,64 +1,52 @@
-import { useState } from 'react';
-import {
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  Col,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  Row,
-  Form
-} from 'react-bootstrap';
+import { useState } from 'react'
+import { Button, Card, CardBody, CardFooter, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row, Form } from 'react-bootstrap'
 
-import IconifyIcon from '@/components/wrappers/IconifyIcon';
-import { useAuthContext } from '@/context/useAuthContext';
-import avatar1 from '@/assets/images/users/avatar-1.jpg';
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import { useAuthContext } from '@/context/useAuthContext'
+import avatar1 from '@/assets/images/users/avatar-1.jpg'
 
 const AboutCard = () => {
-  const { user } = useAuthContext();
+  const { user } = useAuthContext()
   /* ---------- Links State ---------- */
   const [links, setLinks] = useState({
     github: '',
     linkedin: '',
-    portfolio: ''
-  });
+    portfolio: '',
+  })
 
-  const [editingKey, setEditingKey] = useState(null);
-  const [tempLink, setTempLink] = useState('');
+  const [editingKey, setEditingKey] = useState(null)
+  const [tempLink, setTempLink] = useState('')
 
   /* ---------- Link Config ---------- */
   const linkConfig = {
     github: {
       label: 'GitHub',
       icon: 'mdi:github',
-      placeholder: 'https://github.com/username'
+      placeholder: 'https://github.com/username',
     },
     linkedin: {
       label: 'LinkedIn',
       icon: 'mdi:linkedin',
-      placeholder: 'https://linkedin.com/in/username'
+      placeholder: 'https://linkedin.com/in/username',
     },
     portfolio: {
       label: 'Portfolio',
       icon: 'mdi:web',
-      placeholder: 'https://your-portfolio.com'
-    }
-  };
+      placeholder: 'https://your-portfolio.com',
+    },
+  }
 
   /* ---------- Handlers ---------- */
   const handleSave = (key) => {
-    if (!tempLink.trim()) return;
-    setLinks({ ...links, [key]: tempLink });
-    setEditingKey(null);
-    setTempLink('');
-  };
+    if (!tempLink.trim()) return
+    setLinks({ ...links, [key]: tempLink })
+    setEditingKey(null)
+    setTempLink('')
+  }
 
   const handleDelete = (key) => {
-    setLinks({ ...links, [key]: '' });
-  };
+    setLinks({ ...links, [key]: '' })
+  }
 
   return (
     <Card className="text-center h-100">
@@ -72,7 +60,7 @@ const AboutCard = () => {
             width: '140px',
             height: '140px',
             maxWidth: '40vw',
-            maxHeight: '40vw'
+            maxHeight: '40vw',
           }}
         />
       </div>
@@ -89,10 +77,7 @@ const AboutCard = () => {
           <div className="position-absolute top-0 end-0">
             <Dropdown>
               <DropdownToggle as="a" role="button" className="arrow-none">
-                <IconifyIcon
-                  icon="bx:dots-vertical-rounded"
-                  className="fs-18 text-dark"
-                />
+                <IconifyIcon icon="bx:dots-vertical-rounded" className="fs-18 text-dark" />
               </DropdownToggle>
 
               <DropdownMenu className="dropdown-menu-end">
@@ -109,13 +94,10 @@ const AboutCard = () => {
 
           <div className="d-flex flex-column gap-2">
             {Object.entries(linkConfig).map(([key, config]) => {
-              const value = links[key];
+              const value = links[key]
 
               return (
-                <div
-                  key={key}
-                  className="d-flex align-items-center justify-content-between border rounded px-2 py-1"
-                >
+                <div key={key} className="d-flex align-items-center justify-content-between border rounded px-2 py-1">
                   {/* Left Side */}
                   <div className="d-flex align-items-center gap-2 flex-grow-1">
                     <IconifyIcon icon={config.icon} className="fs-18" />
@@ -129,18 +111,11 @@ const AboutCard = () => {
                         autoFocus
                       />
                     ) : value ? (
-                      <a
-                        href={value}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-primary text-decoration-underline fs-14"
-                      >
+                      <a href={value} target="_blank" rel="noreferrer" className="text-primary text-decoration-underline fs-14">
                         {config.label}
                       </a>
                     ) : (
-                      <span className="text-muted fs-14">
-                        {config.placeholder}
-                      </span>
+                      <span className="text-muted fs-14">{config.placeholder}</span>
                     )}
                   </div>
 
@@ -151,11 +126,7 @@ const AboutCard = () => {
                         <Button size="sm" onClick={() => handleSave(key)}>
                           Save
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => setEditingKey(null)}
-                        >
+                        <Button size="sm" variant="secondary" onClick={() => setEditingKey(null)}>
                           Cancel
                         </Button>
                       </>
@@ -165,19 +136,14 @@ const AboutCard = () => {
                           size="sm"
                           variant="light"
                           onClick={() => {
-                            setEditingKey(key);
-                            setTempLink(value);
-                          }}
-                        >
+                            setEditingKey(key)
+                            setTempLink(value)
+                          }}>
                           <IconifyIcon icon="mdi:pencil" />
                         </Button>
 
                         {value && (
-                          <Button
-                            size="sm"
-                            variant="light"
-                            onClick={() => handleDelete(key)}
-                          >
+                          <Button size="sm" variant="light" onClick={() => handleDelete(key)}>
                             <IconifyIcon icon="mdi:delete" />
                           </Button>
                         )}
@@ -185,13 +151,13 @@ const AboutCard = () => {
                     )}
                   </div>
                 </div>
-              );
+              )
             })}
           </div>
         </div>
       </CardBody>
     </Card>
-  );
-};
+  )
+}
 
-export default AboutCard;
+export default AboutCard

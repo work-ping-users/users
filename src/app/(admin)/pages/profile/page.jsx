@@ -1,15 +1,16 @@
-import { Col, Row } from 'react-bootstrap';
-import PageBreadcrumb from '@/components/layout/PageBreadcrumb';
-import PageMetaData from '@/components/PageTitle';
-import AboutCard from './components/AboutCard';
-import Activity from './components/Activity';
-import Followers from './components/Followers';
-import Messages from './components/Messages';
-import PersonalInfo from './components/PersonalInfo';
-import Projects from './components/Projects';
-import Skill from './components/Skill';
+import { Col, Row } from 'react-bootstrap'
+import PageBreadcrumb from '@/components/layout/PageBreadcrumb'
+import PageMetaData from '@/components/PageTitle'
+import AboutCard from './components/AboutCard'
+import Activity from './components/Activity'
+import Followers from './components/Followers'
+import Messages from './components/Messages'
+import PersonalInfo from './components/PersonalInfo'
+import Projects from './components/Projects'
+import Skill from './components/Skill'
 const Profile = () => {
-  return <>
+  return (
+    <>
       <PageBreadcrumb subName="Pages" title="Profile" />
       <PageMetaData title="Profile" />
 
@@ -48,6 +49,7 @@ const Profile = () => {
           </Row>
         </Col>
       </Row>
-    </>;
-};
-export default Profile;
+    </>
+  )
+}
+export default Profile

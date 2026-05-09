@@ -1,119 +1,141 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Badge, Card, CardBody, CardHeader, Col, Row, Spinner } from 'react-bootstrap';
-import PageMetaData from '@/components/PageTitle';
-import ReactTable from '@/components/Table';
-import IconifyIcon from '@/components/wrappers/IconifyIcon';
-import httpClient from '@/helpers/httpClient';
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Badge, Card, CardBody, CardHeader, Col, Row, Spinner } from 'react-bootstrap'
+import PageMetaData from '@/components/PageTitle'
+import ReactTable from '@/components/Table'
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import httpClient from '@/helpers/httpClient'
 
-const fmtDate = (d) =>
-  d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+const fmtDate = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—')
 
 const Avatar = ({ name, size = 36, className = '' }) => (
   <span
     className={`rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold flex-shrink-0 ${className}`}
-    style={{ width: size, height: size, fontSize: size * 0.38 }}
-  >
+    style={{ width: size, height: size, fontSize: size * 0.38 }}>
     {(name ?? '?').charAt(0).toUpperCase()}
   </span>
-);
+)
 
-const workTypeBg = (w) => (w === 'remote' ? 'info' : w === 'onsite' ? 'success' : 'warning');
+const workTypeBg = (w) => (w === 'remote' ? 'info' : w === 'onsite' ? 'success' : 'warning')
 
 const MyTeamPage = () => {
-  const [team, setTeam]       = useState(null);
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch]   = useState('');
+  const [team, setTeam] = useState(null)
+  const [members, setMembers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
 
   const fetchAll = useCallback(async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const [teamRes, membersRes] = await Promise.all([
         httpClient.get('/user/organisation/my-team', { silent: true }),
         httpClient.get('/user/organisation/my-team-members', { silent: true }),
-      ]);
-      setTeam(teamRes.data?.data ?? null);
-      setMembers(membersRes.data?.data ?? []);
+      ])
+      setTeam(teamRes.data?.data ?? null)
+      setMembers(membersRes.data?.data ?? [])
     } catch {
-      setTeam(null);
-      setMembers([]);
+      setTeam(null)
+      setMembers([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => {
+    fetchAll()
+  }, [fetchAll])
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return members;
+    const q = search.trim().toLowerCase()
+    if (!q) return members
     return members.filter(
       (m) =>
         (m.user?.name ?? '').toLowerCase().includes(q) ||
         (m.user?.email ?? '').toLowerCase().includes(q) ||
         (m.user?.employeeId ?? '').toLowerCase().includes(q),
-    );
-  }, [members, search]);
+    )
+  }, [members, search])
 
-  const stats = useMemo(() => ({
-    total:  members.length,
-    active: members.filter((m) => m.user?.isActive).length,
-    remote: members.filter((m) => m.user?.workType === 'remote').length,
-  }), [members]);
+  const stats = useMemo(
+    () => ({
+      total: members.length,
+      active: members.filter((m) => m.user?.isActive).length,
+      remote: members.filter((m) => m.user?.workType === 'remote').length,
+    }),
+    [members],
+  )
 
-  const columns = useMemo(() => [
-    { header: 'S.No', id: 'sno', cell: ({ row }) => <span className="fw-medium">{row.index + 1}</span> },
-    {
-      header: 'Member', id: 'member',
-      cell: ({ row }) => {
-        const u = row.original.user;
-        return (
-          <div className="d-flex align-items-center gap-2">
-            <Avatar name={u?.name} size={36} />
-            <div>
-              <div className="fw-semibold">{u?.name ?? '—'}</div>
-              <div className="text-muted fs-12">{u?.email ?? '—'}</div>
+  const columns = useMemo(
+    () => [
+      { header: 'S.No', id: 'sno', cell: ({ row }) => <span className="fw-medium">{row.index + 1}</span> },
+      {
+        header: 'Member',
+        id: 'member',
+        cell: ({ row }) => {
+          const u = row.original.user
+          return (
+            <div className="d-flex align-items-center gap-2">
+              <Avatar name={u?.name} size={36} />
+              <div>
+                <div className="fw-semibold">{u?.name ?? '—'}</div>
+                <div className="text-muted fs-12">{u?.email ?? '—'}</div>
+              </div>
             </div>
-          </div>
-        );
+          )
+        },
       },
-    },
-    { header: 'Employee ID', id: 'empId', cell: ({ row }) => row.original.user?.employeeId ?? '—' },
-    {
-      header: 'Role', id: 'role',
-      cell: ({ row }) => {
-        const r = row.original.user?.role;
-        const map = { employee: 'secondary', manager: 'primary', teamLead: 'warning' };
-        return r
-          ? <Badge bg={map[r] ?? 'secondary'} className="px-2 py-1 text-capitalize">{r}</Badge>
-          : '—';
+      { header: 'Employee ID', id: 'empId', cell: ({ row }) => row.original.user?.employeeId ?? '—' },
+      {
+        header: 'Role',
+        id: 'role',
+        cell: ({ row }) => {
+          const r = row.original.user?.role
+          const map = { employee: 'secondary', manager: 'primary', teamLead: 'warning' }
+          return r ? (
+            <Badge bg={map[r] ?? 'secondary'} className="px-2 py-1 text-capitalize">
+              {r}
+            </Badge>
+          ) : (
+            '—'
+          )
+        },
       },
-    },
-    {
-      header: 'Work Type', id: 'workType',
-      cell: ({ row }) => {
-        const w = row.original.user?.workType;
-        return w
-          ? <Badge bg={workTypeBg(w)} className="px-2 py-1 text-capitalize">{w}</Badge>
-          : '—';
+      {
+        header: 'Work Type',
+        id: 'workType',
+        cell: ({ row }) => {
+          const w = row.original.user?.workType
+          return w ? (
+            <Badge bg={workTypeBg(w)} className="px-2 py-1 text-capitalize">
+              {w}
+            </Badge>
+          ) : (
+            '—'
+          )
+        },
       },
-    },
-    {
-      header: 'Status', id: 'status',
-      cell: ({ row }) => {
-        const active = row.original.user?.isActive;
-        return <Badge bg={active ? 'success' : 'danger'} className="px-2 py-1">{active ? 'Active' : 'Inactive'}</Badge>;
+      {
+        header: 'Status',
+        id: 'status',
+        cell: ({ row }) => {
+          const active = row.original.user?.isActive
+          return (
+            <Badge bg={active ? 'success' : 'danger'} className="px-2 py-1">
+              {active ? 'Active' : 'Inactive'}
+            </Badge>
+          )
+        },
       },
-    },
-    { header: 'Joined', id: 'joined', cell: ({ row }) => <span className="text-nowrap">{fmtDate(row.original.joinedAt)}</span> },
-  ], []);
+      { header: 'Joined', id: 'joined', cell: ({ row }) => <span className="text-nowrap">{fmtDate(row.original.joinedAt)}</span> },
+    ],
+    [],
+  )
 
   if (loading) {
     return (
       <div className="d-flex align-items-center justify-content-center" style={{ minHeight: 300 }}>
         <Spinner animation="border" variant="primary" />
       </div>
-    );
+    )
   }
 
   if (!team) {
@@ -127,7 +149,7 @@ const MyTeamPage = () => {
           </CardBody>
         </Card>
       </>
-    );
+    )
   }
 
   return (
@@ -140,8 +162,7 @@ const MyTeamPage = () => {
           <div className="d-flex align-items-center gap-3 mb-3">
             <div
               className="bg-primary-subtle rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
-              style={{ width: 56, height: 56 }}
-            >
+              style={{ width: 56, height: 56 }}>
               <IconifyIcon icon="bxs:group" className="text-primary" style={{ fontSize: 28 }} />
             </div>
             <div>
@@ -195,17 +216,16 @@ const MyTeamPage = () => {
       {/* Stats */}
       <Row className="g-3 mb-3">
         {[
-          { label: 'Total Members', value: stats.total,  color: 'primary', icon: 'bxs:group' },
-          { label: 'Active',        value: stats.active, color: 'success', icon: 'bx:check-circle' },
-          { label: 'Remote',        value: stats.remote, color: 'info',    icon: 'bx:wifi' },
+          { label: 'Total Members', value: stats.total, color: 'primary', icon: 'bxs:group' },
+          { label: 'Active', value: stats.active, color: 'success', icon: 'bx:check-circle' },
+          { label: 'Remote', value: stats.remote, color: 'info', icon: 'bx:wifi' },
         ].map(({ label, value, color, icon }) => (
           <Col key={label} xs={4}>
             <Card className="border-0 shadow-sm">
               <CardBody className="d-flex align-items-center gap-3 py-3">
                 <div
                   className={`bg-${color}-subtle rounded-circle d-flex align-items-center justify-content-center`}
-                  style={{ width: 44, height: 44, flexShrink: 0 }}
-                >
+                  style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <IconifyIcon icon={icon} className={`text-${color} fs-4`} />
                 </div>
                 <div>
@@ -223,7 +243,9 @@ const MyTeamPage = () => {
         <CardHeader className="border-bottom">
           <div className="d-flex align-items-center gap-3">
             <h5 className="mb-0 fw-semibold">Team Members</h5>
-            <Badge bg="primary-subtle" className="text-primary">{stats.total}</Badge>
+            <Badge bg="primary-subtle" className="text-primary">
+              {stats.total}
+            </Badge>
           </div>
           <div className="mt-2">
             <input
@@ -256,7 +278,7 @@ const MyTeamPage = () => {
         </CardBody>
       </Card>
     </>
-  );
-};
+  )
+}
 
-export default MyTeamPage;
+export default MyTeamPage

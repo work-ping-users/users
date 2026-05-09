@@ -1,9 +1,10 @@
-import { Card, CardBody, CardHeader, CardTitle } from 'react-bootstrap';
-import { useAuthContext } from '@/context/useAuthContext';
+import { Card, CardBody, CardHeader, CardTitle } from 'react-bootstrap'
+import { useAuthContext } from '@/context/useAuthContext'
 
 const PersonalInfo = () => {
-  const { user } = useAuthContext();
-  return <Card className='h-100'>
+  const { user } = useAuthContext()
+  return (
+    <Card className="h-100">
       <CardHeader>
         <CardTitle as={'h5'}>Personal Info</CardTitle>
       </CardHeader>
@@ -15,7 +16,7 @@ const PersonalInfo = () => {
               <span className="fs-14 text-muted">{user?.name ?? '—'}</span>
             </div>
           </li>
-           <li className="list-group-item border-0 border-bottom px-0">
+          <li className="list-group-item border-0 border-bottom px-0">
             <div className="d-flex flex-wrap align-items-center">
               <h5 className="me-2 fw-medium mb-0">UserID :</h5>
               <span className="fs-14 text-muted">23A91A05E1</span>
@@ -27,14 +28,14 @@ const PersonalInfo = () => {
               <span className="fs-14 text-muted">{user?.email ?? '—'}</span>
             </div>
           </li>
-           
+
           <li className="list-group-item border-0 border-bottom px-0">
             <div className="d-flex flex-wrap align-items-center">
               <h5 className="me-2 mb-0 fw-medium">Phone :</h5>
               <span className="fs-14 text-muted">+909 707-302-2110</span>
             </div>
           </li>
-             <li className="list-group-item border-0 border-bottom px-0">
+          <li className="list-group-item border-0 border-bottom px-0">
             <div className="d-flex flex-wrap align-items-center">
               <h5 className="me-2 fw-medium mb-0">UserID :</h5>
               <span className="fs-14 text-muted">23A91A05E1</span>
@@ -52,7 +53,7 @@ const PersonalInfo = () => {
               <span className="fs-14 text-muted">01-01-2002</span>
             </div>
           </li>
-        
+
           <li className="list-group-item border-0 border-bottom px-0">
             <div className="d-flex flex-wrap align-items-center">
               <h5 className="me-2 mb-0 fw-medium">Experience :</h5>
@@ -67,6 +68,7 @@ const PersonalInfo = () => {
           </li>
         </ul>
       </CardBody>
-    </Card>;
-};
-export default PersonalInfo;
+    </Card>
+  )
+}
+export default PersonalInfo

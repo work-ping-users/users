@@ -1,10 +1,10 @@
-import { Col, Row } from 'react-bootstrap';
-import AboutCard from './components/AboutCard';
-import Activity from './components/Activity';
-import ProfileHeatmap from './components/ProfileHeatmap';
-import PersonalInfo from './components/PersonalInfo';
-import Projects from './components/Projects';
-import Skill from './components/Skill';
+import { Col, Row } from 'react-bootstrap'
+import AboutCard from './components/AboutCard'
+import Activity from './components/Activity'
+import ProfileHeatmap from './components/ProfileHeatmap'
+import PersonalInfo from './components/PersonalInfo'
+import Projects from './components/Projects'
+import Skill from './components/Skill'
 
 const UserProfile = () => {
   return (
@@ -54,7 +54,7 @@ const UserProfile = () => {
         </Col>
       </Row>
     </>
-  );
-};
+  )
+}
 
-export default UserProfile;
+export default UserProfile

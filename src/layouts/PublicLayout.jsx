@@ -1,33 +1,28 @@
-import { Suspense } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Container, Button } from 'react-bootstrap';
-import LogoBox from '@/components/LogoBox';
-import ThemeModeToggle from '@/components/layout/TopNavigationBar/components/ThemeModeToggle';
-import Preloader from '@/components/Preloader';
-import { currentYear, developedBy, developedByLink } from '@/context/constants';
-import IconifyIcon from '@/components/wrappers/IconifyIcon';
-import { useAuthContext } from '@/context/useAuthContext';
+import { Suspense } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Container, Button } from 'react-bootstrap'
+import LogoBox from '@/components/LogoBox'
+import ThemeModeToggle from '@/components/layout/TopNavigationBar/components/ThemeModeToggle'
+import Preloader from '@/components/Preloader'
+import { currentYear, developedBy, developedByLink } from '@/context/constants'
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import { useAuthContext } from '@/context/useAuthContext'
 
 const PublicLayout = ({ children }) => {
-  const navigate = useNavigate();
-  const { isAuthenticated, authLoading } = useAuthContext();
+  const navigate = useNavigate()
+  const { isAuthenticated, authLoading } = useAuthContext()
 
   return (
     <div className="wrapper">
-
       {/* ─── NAVBAR ─── */}
       <header className="topbar position-sticky top-0" style={{ zIndex: 1005, paddingLeft: 0 }}>
         <div className="container-xxl">
           <div className="navbar-header">
-            <LogoBox
-              containerClassName="logo-box"
-              squareLogo={{ className: 'logo-sm' }}
-              textLogo={{ className: 'logo-lg' }}
-            />
+            <LogoBox containerClassName="logo-box" squareLogo={{ className: 'logo-sm' }} textLogo={{ className: 'logo-lg' }} />
             <div className="d-flex align-items-center gap-2">
               <ThemeModeToggle />
-              {!authLoading && (
-                isAuthenticated ? (
+              {!authLoading &&
+                (isAuthenticated ? (
                   <Link to="/" className="topbar-button btn btn-sm btn-primary px-3">
                     Dashboard
                   </Link>
@@ -35,8 +30,7 @@ const PublicLayout = ({ children }) => {
                   <Button size="sm" className="px-3" onClick={() => navigate('/auth/sign-in')}>
                     Sign In
                   </Button>
-                )
-              )}
+                ))}
             </div>
           </div>
         </div>
@@ -62,22 +56,28 @@ const PublicLayout = ({ children }) => {
                 </span>
               </span>
               <nav className="d-flex align-items-center gap-2 flex-wrap">
-                <Link to="/about" className="text-muted footer-text">About</Link>
+                <Link to="/about" className="text-muted footer-text">
+                  About
+                </Link>
                 <span className="text-muted">|</span>
-                <Link to="/contact" className="text-muted footer-text">Contact</Link>
+                <Link to="/contact" className="text-muted footer-text">
+                  Contact
+                </Link>
                 <span className="text-muted">|</span>
-                <Link to="/privacy-policy" className="text-muted footer-text">Privacy Policy</Link>
+                <Link to="/privacy-policy" className="text-muted footer-text">
+                  Privacy Policy
+                </Link>
                 <span className="text-muted">|</span>
-                <Link to="/terms-and-conditions" className="text-muted footer-text">Terms &amp; Conditions</Link>
+                <Link to="/terms-and-conditions" className="text-muted footer-text">
+                  Terms &amp; Conditions
+                </Link>
               </nav>
             </div>
           </Container>
         </footer>
       </div>
-
     </div>
-  );
-};
+  )
+}
 
-export default PublicLayout;
-
+export default PublicLayout

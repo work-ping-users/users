@@ -1,51 +1,51 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Badge, Card, CardBody, Col, Row, Spinner } from 'react-bootstrap';
-import PageMetaData from '@/components/PageTitle';
-import IconifyIcon from '@/components/wrappers/IconifyIcon';
-import httpClient from '@/helpers/httpClient';
+import { useCallback, useEffect, useState } from 'react'
+import { Badge, Card, CardBody, Col, Row, Spinner } from 'react-bootstrap'
+import PageMetaData from '@/components/PageTitle'
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import httpClient from '@/helpers/httpClient'
 
-const fmtDate = (d) =>
-  d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '—';
+const fmtDate = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) : '—')
 
 const InfoRow = ({ icon, label, value }) => (
   <div className="d-flex align-items-start gap-3 py-2 border-bottom">
-    <div
-      className="bg-primary-subtle rounded d-flex align-items-center justify-content-center flex-shrink-0"
-      style={{ width: 32, height: 32 }}
-    >
+    <div className="bg-primary-subtle rounded d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: 32, height: 32 }}>
       <IconifyIcon icon={icon} className="text-primary fs-5" />
     </div>
     <div>
-      <div className="text-muted fs-12 text-uppercase fw-semibold" style={{ letterSpacing: '0.05em' }}>{label}</div>
+      <div className="text-muted fs-12 text-uppercase fw-semibold" style={{ letterSpacing: '0.05em' }}>
+        {label}
+      </div>
       <div className="fw-medium mt-1">{value || '—'}</div>
     </div>
   </div>
-);
+)
 
 const OrganisationPage = () => {
-  const [org, setOrg]     = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [org, setOrg] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   const fetchOrg = useCallback(async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const res = await httpClient.get('/user/organisation/my-organization', { silent: true });
-      setOrg(res.data?.data ?? null);
+      const res = await httpClient.get('/user/organisation/my-organization', { silent: true })
+      setOrg(res.data?.data ?? null)
     } catch {
-      setOrg(null);
+      setOrg(null)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
-  useEffect(() => { fetchOrg(); }, [fetchOrg]);
+  useEffect(() => {
+    fetchOrg()
+  }, [fetchOrg])
 
   if (loading) {
     return (
       <div className="d-flex align-items-center justify-content-center" style={{ minHeight: 300 }}>
         <Spinner animation="border" variant="primary" />
       </div>
-    );
+    )
   }
 
   if (!org) {
@@ -59,7 +59,7 @@ const OrganisationPage = () => {
           </CardBody>
         </Card>
       </>
-    );
+    )
   }
 
   return (
@@ -73,8 +73,7 @@ const OrganisationPage = () => {
           <div className="d-flex align-items-end gap-4" style={{ marginTop: -48 }}>
             <div
               className="bg-white border border-3 border-primary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm"
-              style={{ width: 96, height: 96 }}
-            >
+              style={{ width: 96, height: 96 }}>
               {org.logo ? (
                 <img src={org.logo} alt={org.name} className="rounded-3" style={{ width: 88, height: 88, objectFit: 'cover' }} />
               ) : (
@@ -114,23 +113,24 @@ const OrganisationPage = () => {
                 <IconifyIcon icon="bx:info-circle" className="me-2 text-primary" />
                 Organisation Details
               </h5>
-              <InfoRow icon="bx:buildings"     label="Organisation Name"   value={org.name} />
-              <InfoRow icon="bx:category"       label="Type"               value={org.type} />
-              <InfoRow icon="bx:calendar-event" label="Founded"            value={fmtDate(org.foundedAt)} />
-              <InfoRow icon="bx:map-pin"        label="Location"           value={
-                org.coordinates?.length === 2
-                  ? `${org.coordinates[1].toFixed(4)}° N, ${org.coordinates[0].toFixed(4)}° E`
-                  : undefined
-              } />
+              <InfoRow icon="bx:buildings" label="Organisation Name" value={org.name} />
+              <InfoRow icon="bx:category" label="Type" value={org.type} />
+              <InfoRow icon="bx:calendar-event" label="Founded" value={fmtDate(org.foundedAt)} />
+              <InfoRow
+                icon="bx:map-pin"
+                label="Location"
+                value={org.coordinates?.length === 2 ? `${org.coordinates[1].toFixed(4)}° N, ${org.coordinates[0].toFixed(4)}° E` : undefined}
+              />
               <div className="d-flex align-items-start gap-3 py-2">
                 <div
                   className="bg-primary-subtle rounded d-flex align-items-center justify-content-center flex-shrink-0"
-                  style={{ width: 32, height: 32 }}
-                >
+                  style={{ width: 32, height: 32 }}>
                   <IconifyIcon icon="bx:briefcase-alt" className="text-primary fs-5" />
                 </div>
                 <div>
-                  <div className="text-muted fs-12 text-uppercase fw-semibold" style={{ letterSpacing: '0.05em' }}>Member Since</div>
+                  <div className="text-muted fs-12 text-uppercase fw-semibold" style={{ letterSpacing: '0.05em' }}>
+                    Member Since
+                  </div>
                   <div className="fw-medium mt-1">{fmtDate(org.createdAt)}</div>
                 </div>
               </div>
@@ -150,17 +150,14 @@ const OrganisationPage = () => {
                   </h5>
                   <div className="d-flex align-items-center justify-content-between mb-2">
                     <span className="text-muted">Annual Casual Leaves</span>
-                    <Badge bg="success" className="fs-14 px-3 py-2">{org.clDays ?? 12} days</Badge>
+                    <Badge bg="success" className="fs-14 px-3 py-2">
+                      {org.clDays ?? 12} days
+                    </Badge>
                   </div>
                   <div className="progress" style={{ height: 8 }}>
-                    <div
-                      className="progress-bar bg-success"
-                      style={{ width: `${Math.min(100, ((org.clDays ?? 12) / 30) * 100)}%` }}
-                    />
+                    <div className="progress-bar bg-success" style={{ width: `${Math.min(100, ((org.clDays ?? 12) / 30) * 100)}%` }} />
                   </div>
-                  <p className="text-muted fs-12 mt-2 mb-0">
-                    Your organisation provides {org.clDays ?? 12} casual leave days per year.
-                  </p>
+                  <p className="text-muted fs-12 mt-2 mb-0">Your organisation provides {org.clDays ?? 12} casual leave days per year.</p>
                 </CardBody>
               </Card>
             </Col>
@@ -201,7 +198,7 @@ const OrganisationPage = () => {
         </Col>
       </Row>
     </>
-  );
-};
+  )
+}
 
-export default OrganisationPage;
+export default OrganisationPage

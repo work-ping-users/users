@@ -1,4 +1,4 @@
-import IconifyIcon from '@/components/wrappers/IconifyIcon';
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import {
   Card,
   CardBody,
@@ -10,23 +10,12 @@ import {
   DropdownToggle,
   OverlayTrigger,
   ProgressBar,
-  Tooltip
-} from 'react-bootstrap';
-import { projectData } from '../data';
+  Tooltip,
+} from 'react-bootstrap'
+import { projectData } from '../data'
 
 const ProjectCard = ({ project }) => {
-  const {
-    days,
-    file,
-    icon,
-    iconColor,
-    progressVariant,
-    progressValue,
-    team,
-    teamMembers,
-    title,
-    task
-  } = project;
+  const { days, file, icon, iconColor, progressVariant, progressValue, team, teamMembers, title, task } = project
 
   return (
     <Card className="shadow-none mb-0" style={{ minWidth: '420px' }}>
@@ -52,18 +41,12 @@ const ProjectCard = ({ project }) => {
         </div>
 
         <div className="d-flex gap-2 mt-2">
-          <CardTitle
-            as="h5"
-            className="badge text-secondary d-flex gap-1 align-items-center py-1 px-2 fs-13 mb-3 border rounded-1"
-          >
+          <CardTitle as="h5" className="badge text-secondary d-flex gap-1 align-items-center py-1 px-2 fs-13 mb-3 border rounded-1">
             <IconifyIcon icon="iconamoon:clock-duotone" />
             {days} day left
           </CardTitle>
 
-          <CardTitle
-            as="h5"
-            className="badge text-secondary d-flex gap-1 align-items-center py-1 px-2 fs-13 mb-3 border rounded-1"
-          >
+          <CardTitle as="h5" className="badge text-secondary d-flex gap-1 align-items-center py-1 px-2 fs-13 mb-3 border rounded-1">
             <IconifyIcon icon="iconamoon:file-duotone" />
             {file} Files
           </CardTitle>
@@ -72,24 +55,14 @@ const ProjectCard = ({ project }) => {
         <div>
           <p className="fs-15 mb-1 float-end">{task}</p>
           <p className="fs-15 mb-1">{progressValue}%</p>
-          <ProgressBar
-            variant={progressVariant}
-            striped
-            animated
-            now={progressValue}
-            className="progress-sm mb-3"
-          />
+          <ProgressBar variant={progressVariant} striped animated now={progressValue} className="progress-sm mb-3" />
         </div>
 
         <div className="d-flex align-items-center gap-3">
           <div className="avatar-group">
             {teamMembers.map((member, idx) => (
               <div className="avatar-group-item" key={idx}>
-                <img
-                  src={member}
-                  alt="avatar"
-                  className="rounded-circle avatar-sm"
-                />
+                <img src={member} alt="avatar" className="rounded-circle avatar-sm" />
               </div>
             ))}
           </div>
@@ -98,8 +71,8 @@ const ProjectCard = ({ project }) => {
         </div>
       </CardBody>
     </Card>
-  );
-};
+  )
+}
 
 const Projects = () => {
   return (
@@ -110,10 +83,7 @@ const Projects = () => {
         <div className="ms-auto">
           <Dropdown>
             <DropdownToggle as="a" role="button" className="arrow-none">
-              <IconifyIcon
-                icon="bx:dots-vertical-rounded"
-                className="fs-18 text-dark"
-              />
+              <IconifyIcon icon="bx:dots-vertical-rounded" className="fs-18 text-dark" />
             </DropdownToggle>
 
             <DropdownMenu className="dropdown-menu-end">
@@ -141,9 +111,8 @@ const Projects = () => {
           style={{
             overflowX: 'auto',
             paddingBottom: '8px',
-            scrollBehavior: 'smooth'
-          }}
-        >
+            scrollBehavior: 'smooth',
+          }}>
           {projectData.map((project, idx) => (
             <div key={idx} style={{ flexShrink: 0 }}>
               <ProjectCard project={project} />
@@ -152,7 +121,7 @@ const Projects = () => {
         </div>
       </CardBody>
     </Card>
-  );
-};
+  )
+}
 
-export default Projects;
+export default Projects

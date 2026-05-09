@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle } from 'react-bootstrap';
+import { Card, CardBody, CardHeader, CardTitle } from 'react-bootstrap'
 
 const PersonalInfo = () => {
   return (
@@ -46,7 +46,7 @@ const PersonalInfo = () => {
         </ul>
       </CardBody>
     </Card>
-  );
-};
+  )
+}
 
-export default PersonalInfo;
+export default PersonalInfo

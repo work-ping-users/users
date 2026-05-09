@@ -1,12 +1,7 @@
-import IconifyIcon from '@/components/wrappers/IconifyIcon';
-import { Card, CardBody, Col, Row } from 'react-bootstrap';
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import { Card, CardBody, Col, Row } from 'react-bootstrap'
 
-const StatCard = ({
-  amount,
-  icon,
-  variant,
-  name
-}) => {
+const StatCard = ({ amount, icon, variant, name }) => {
   return (
     <Card className="h-100 shadow-none border-0 bg-light-subtle">
       <CardBody>
@@ -23,8 +18,8 @@ const StatCard = ({
         </Row>
       </CardBody>
     </Card>
-  );
-};
+  )
+}
 
 const ManagerStats = ({ stats }) => {
   const cards = [
@@ -51,8 +46,8 @@ const ManagerStats = ({ stats }) => {
       amount: stats.pendingLeavesCount || 0,
       icon: 'iconamoon:calendar-1-duotone',
       variant: 'warning',
-    }
-  ];
+    },
+  ]
 
   return (
     <Row className="g-3">
@@ -62,7 +57,7 @@ const ManagerStats = ({ stats }) => {
         </Col>
       ))}
     </Row>
-  );
-};
+  )
+}
 
-export default ManagerStats;
+export default ManagerStats

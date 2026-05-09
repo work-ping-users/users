@@ -1,189 +1,208 @@
-import { useParams } from 'react-router-dom';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  Badge, Button, Card, CardBody, CardHeader, Col, Form,
-  Modal, ModalBody, ModalFooter, ModalHeader, Row, Spinner,
-} from 'react-bootstrap';
-import PageMetaData from '@/components/PageTitle';
-import ReactTable from '@/components/Table';
-import IconifyIcon from '@/components/wrappers/IconifyIcon';
-import httpClient from '@/helpers/httpClient';
-import { useAuthContext } from '@/context/useAuthContext';
+import { useParams } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Badge, Button, Card, CardBody, CardHeader, Col, Form, Modal, ModalBody, ModalFooter, ModalHeader, Row, Spinner } from 'react-bootstrap'
+import PageMetaData from '@/components/PageTitle'
+import ReactTable from '@/components/Table'
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import httpClient from '@/helpers/httpClient'
+import { useAuthContext } from '@/context/useAuthContext'
 
-const WORK_TYPES = ['remote', 'onsite', 'hybrid'];
+const WORK_TYPES = ['remote', 'onsite', 'hybrid']
 
 const TeamsPage = () => {
-  const { user } = useAuthContext();
-  const { teamId: urlTeamId } = useParams();
+  const { user } = useAuthContext()
+  const { teamId: urlTeamId } = useParams()
 
-  const [members, setMembers]         = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [search, setSearch]           = useState('');
-  const [totalRecords, setTotalRecords] = useState(0);
+  const [members, setMembers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [totalRecords, setTotalRecords] = useState(0)
 
   // Add-member modal
-  const [showAdd, setShowAdd]         = useState(false);
-  const [eligible, setEligible]       = useState([]);
-  const [eligLoading, setEligLoading] = useState(false);
-  const [eligSearch, setEligSearch]   = useState('');
-  const [selectedId, setSelectedId]   = useState('');
-  const [adding, setAdding]           = useState(false);
+  const [showAdd, setShowAdd] = useState(false)
+  const [eligible, setEligible] = useState([])
+  const [eligLoading, setEligLoading] = useState(false)
+  const [eligSearch, setEligSearch] = useState('')
+  const [selectedId, setSelectedId] = useState('')
+  const [adding, setAdding] = useState(false)
 
   // Remove
-  const [removing, setRemoving]       = useState(null);
+  const [removing, setRemoving] = useState(null)
 
-  const teamId        = urlTeamId || user?.teamId;
-  const organizationId = user?.organizationId;
+  const teamId = urlTeamId || user?.teamId
+  const organizationId = user?.organizationId
 
   const fetchMembers = useCallback(async () => {
-    if (!teamId) { setLoading(false); return; }
-    setLoading(true);
+    if (!teamId) {
+      setLoading(false)
+      return
+    }
+    setLoading(true)
     try {
       const res = await httpClient.get('/admin/team/get-team-members', {
         params: { teamId, limit: 100 },
         silent: true,
-      });
-      const d = res.data?.data ?? {};
-      setMembers(d.members ?? []);
-      setTotalRecords(d.totalRecords ?? 0);
+      })
+      const d = res.data?.data ?? {}
+      setMembers(d.members ?? [])
+      setTotalRecords(d.totalRecords ?? 0)
     } catch {
-      setMembers([]);
+      setMembers([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [teamId]);
-
-  useEffect(() => { fetchMembers(); }, [fetchMembers]);
-
-  const fetchEligible = useCallback(async (q = '') => {
-    if (!organizationId) return;
-    setEligLoading(true);
-    try {
-      const res = await httpClient.get('/admin/team/eligible-members', {
-        params: { organizationId, search: q, limit: 50 },
-        silent: true,
-      });
-      setEligible(res.data?.data?.users ?? []);
-    } catch {
-      setEligible([]);
-    } finally {
-      setEligLoading(false);
-    }
-  }, [organizationId]);
-
-  const openAdd = () => {
-    setSelectedId('');
-    setEligSearch('');
-    setShowAdd(true);
-    fetchEligible('');
-  };
+  }, [teamId])
 
   useEffect(() => {
-    if (!showAdd) return;
-    const t = setTimeout(() => fetchEligible(eligSearch), 300);
-    return () => clearTimeout(t);
-  }, [eligSearch, showAdd, fetchEligible]);
+    fetchMembers()
+  }, [fetchMembers])
+
+  const fetchEligible = useCallback(
+    async (q = '') => {
+      if (!organizationId) return
+      setEligLoading(true)
+      try {
+        const res = await httpClient.get('/admin/team/eligible-members', {
+          params: { organizationId, search: q, limit: 50 },
+          silent: true,
+        })
+        setEligible(res.data?.data?.users ?? [])
+      } catch {
+        setEligible([])
+      } finally {
+        setEligLoading(false)
+      }
+    },
+    [organizationId],
+  )
+
+  const openAdd = () => {
+    setSelectedId('')
+    setEligSearch('')
+    setShowAdd(true)
+    fetchEligible('')
+  }
+
+  useEffect(() => {
+    if (!showAdd) return
+    const t = setTimeout(() => fetchEligible(eligSearch), 300)
+    return () => clearTimeout(t)
+  }, [eligSearch, showAdd, fetchEligible])
 
   const handleAdd = async () => {
-    if (!selectedId || !teamId) return;
-    setAdding(true);
+    if (!selectedId || !teamId) return
+    setAdding(true)
     try {
       await httpClient.post('/admin/team/add-team-member', {
         teamId,
         members: [selectedId],
         orgId: organizationId,
-      });
-      setShowAdd(false);
-      fetchMembers();
+      })
+      setShowAdd(false)
+      fetchMembers()
     } finally {
-      setAdding(false);
+      setAdding(false)
     }
-  };
+  }
 
   const handleRemove = async (membershipId) => {
-    setRemoving(membershipId);
+    setRemoving(membershipId)
     try {
-      await httpClient.post('/admin/team/remove-team-member', { membershipIds: [membershipId] });
-      fetchMembers();
+      await httpClient.post('/admin/team/remove-team-member', { membershipIds: [membershipId] })
+      fetchMembers()
     } finally {
-      setRemoving(null);
+      setRemoving(null)
     }
-  };
+  }
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return members;
+    const q = search.trim().toLowerCase()
+    if (!q) return members
     return members.filter(
       (m) =>
         (m.user?.name ?? '').toLowerCase().includes(q) ||
         (m.user?.email ?? '').toLowerCase().includes(q) ||
-        (m.user?.employeeId ?? '').toLowerCase().includes(q)
-    );
-  }, [members, search]);
+        (m.user?.employeeId ?? '').toLowerCase().includes(q),
+    )
+  }, [members, search])
 
-  const summary = useMemo(() => ({
-    total:   members.length,
-    active:  members.filter((m) => m.user?.isActive).length,
-    remote:  members.filter((m) => m.user?.workType === 'remote').length,
-  }), [members]);
+  const summary = useMemo(
+    () => ({
+      total: members.length,
+      active: members.filter((m) => m.user?.isActive).length,
+      remote: members.filter((m) => m.user?.workType === 'remote').length,
+    }),
+    [members],
+  )
 
-  const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+  const fmtDate = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—')
 
-  const workTypeBg = (w) => w === 'remote' ? 'info' : w === 'onsite' ? 'success' : 'warning';
+  const workTypeBg = (w) => (w === 'remote' ? 'info' : w === 'onsite' ? 'success' : 'warning')
 
-  const columns = useMemo(() => [
-    { header: 'S.No', id: 'sno', cell: ({ row }) => <span className="fw-medium">{row.index + 1}</span> },
-    {
-      header: 'Member', id: 'member',
-      cell: ({ row }) => {
-        const u = row.original.user;
-        return (
-          <div className="d-flex align-items-center gap-2">
-            <span className="avatar-sm rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold fs-16 flex-shrink-0">
-              {(u?.name ?? '?').charAt(0).toUpperCase()}
-            </span>
-            <div>
-              <div className="fw-semibold">{u?.name ?? '—'}</div>
-              <div className="text-muted fs-12">{u?.email ?? '—'}</div>
+  const columns = useMemo(
+    () => [
+      { header: 'S.No', id: 'sno', cell: ({ row }) => <span className="fw-medium">{row.index + 1}</span> },
+      {
+        header: 'Member',
+        id: 'member',
+        cell: ({ row }) => {
+          const u = row.original.user
+          return (
+            <div className="d-flex align-items-center gap-2">
+              <span className="avatar-sm rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold fs-16 flex-shrink-0">
+                {(u?.name ?? '?').charAt(0).toUpperCase()}
+              </span>
+              <div>
+                <div className="fw-semibold">{u?.name ?? '—'}</div>
+                <div className="text-muted fs-12">{u?.email ?? '—'}</div>
+              </div>
             </div>
-          </div>
-        );
+          )
+        },
       },
-    },
-    { header: 'Employee ID', id: 'empId', cell: ({ row }) => row.original.user?.employeeId ?? '—' },
-    {
-      header: 'Work Type', id: 'workType',
-      cell: ({ row }) => {
-        const w = row.original.user?.workType;
-        return w ? <Badge bg={workTypeBg(w)} className="px-2 py-1 text-capitalize">{w}</Badge> : '—';
+      { header: 'Employee ID', id: 'empId', cell: ({ row }) => row.original.user?.employeeId ?? '—' },
+      {
+        header: 'Work Type',
+        id: 'workType',
+        cell: ({ row }) => {
+          const w = row.original.user?.workType
+          return w ? (
+            <Badge bg={workTypeBg(w)} className="px-2 py-1 text-capitalize">
+              {w}
+            </Badge>
+          ) : (
+            '—'
+          )
+        },
       },
-    },
-    {
-      header: 'Status', id: 'status',
-      cell: ({ row }) => {
-        const active = row.original.user?.isActive;
-        return <Badge bg={active ? 'success' : 'danger'} className="px-2 py-1">{active ? 'Active' : 'Inactive'}</Badge>;
+      {
+        header: 'Status',
+        id: 'status',
+        cell: ({ row }) => {
+          const active = row.original.user?.isActive
+          return (
+            <Badge bg={active ? 'success' : 'danger'} className="px-2 py-1">
+              {active ? 'Active' : 'Inactive'}
+            </Badge>
+          )
+        },
       },
-    },
-    { header: 'Joined', id: 'joined', cell: ({ row }) => <span className="text-nowrap">{fmtDate(row.original.joinedAt)}</span> },
-    {
-      header: 'Actions', id: 'actions',
-      cell: ({ row }) => {
-        const mid = row.original._id;
-        return (
-          <Button
-            variant="outline-danger" size="sm" className="py-0"
-            disabled={removing === mid}
-            onClick={() => handleRemove(mid)}
-          >
-            {removing === mid
-              ? <Spinner size="sm" animation="border" />
-              : <IconifyIcon icon="bx:trash" height={16} width={16} />}
-          </Button>
-        );
+      { header: 'Joined', id: 'joined', cell: ({ row }) => <span className="text-nowrap">{fmtDate(row.original.joinedAt)}</span> },
+      {
+        header: 'Actions',
+        id: 'actions',
+        cell: ({ row }) => {
+          const mid = row.original._id
+          return (
+            <Button variant="outline-danger" size="sm" className="py-0" disabled={removing === mid} onClick={() => handleRemove(mid)}>
+              {removing === mid ? <Spinner size="sm" animation="border" /> : <IconifyIcon icon="bx:trash" height={16} width={16} />}
+            </Button>
+          )
+        },
       },
-    },
-  ], [removing]);
+    ],
+    [removing],
+  )
 
   if (!teamId) {
     return (
@@ -196,7 +215,7 @@ const TeamsPage = () => {
           </CardBody>
         </Card>
       </>
-    );
+    )
   }
 
   return (
@@ -205,14 +224,16 @@ const TeamsPage = () => {
 
       <Row className="g-3 mb-3">
         {[
-          { label: 'Total Members', value: summary.total,  color: 'primary', icon: 'bxs:group' },
-          { label: 'Active',        value: summary.active, color: 'success', icon: 'bx:check-circle' },
-          { label: 'Remote',        value: summary.remote, color: 'info',    icon: 'bx:wifi' },
+          { label: 'Total Members', value: summary.total, color: 'primary', icon: 'bxs:group' },
+          { label: 'Active', value: summary.active, color: 'success', icon: 'bx:check-circle' },
+          { label: 'Remote', value: summary.remote, color: 'info', icon: 'bx:wifi' },
         ].map(({ label, value, color, icon }) => (
           <Col key={label} xs={6} md={4}>
             <Card className="border-0 shadow-sm">
               <CardBody className="d-flex align-items-center gap-3 py-3">
-                <div className={`bg-${color}-subtle rounded-circle d-flex align-items-center justify-content-center`} style={{ width: 44, height: 44, flexShrink: 0 }}>
+                <div
+                  className={`bg-${color}-subtle rounded-circle d-flex align-items-center justify-content-center`}
+                  style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <IconifyIcon icon={icon} className={`text-${color} fs-4`} />
                 </div>
                 <div>
@@ -277,17 +298,14 @@ const TeamsPage = () => {
         <ModalBody>
           <Form.Group className="mb-3">
             <Form.Label className="fw-semibold">Search Employee</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Search by name or email..."
-              value={eligSearch}
-              onChange={(e) => setEligSearch(e.target.value)}
-            />
+            <Form.Control type="text" placeholder="Search by name or email..." value={eligSearch} onChange={(e) => setEligSearch(e.target.value)} />
           </Form.Group>
           <Form.Group>
             <Form.Label className="fw-semibold">Select Employee</Form.Label>
             {eligLoading ? (
-              <div className="text-center py-2"><Spinner size="sm" animation="border" /></div>
+              <div className="text-center py-2">
+                <Spinner size="sm" animation="border" />
+              </div>
             ) : eligible.length === 0 ? (
               <p className="text-muted fs-13 mb-0">No eligible employees found.</p>
             ) : (
@@ -303,7 +321,9 @@ const TeamsPage = () => {
           </Form.Group>
         </ModalBody>
         <ModalFooter>
-          <Button variant="secondary" onClick={() => setShowAdd(false)}>Cancel</Button>
+          <Button variant="secondary" onClick={() => setShowAdd(false)}>
+            Cancel
+          </Button>
           <Button variant="primary" disabled={!selectedId || adding} onClick={handleAdd}>
             {adding ? <Spinner size="sm" animation="border" className="me-1" /> : <IconifyIcon icon="bx:check" className="me-1" />}
             Add to Team
@@ -311,7 +331,7 @@ const TeamsPage = () => {
         </ModalFooter>
       </Modal>
     </>
-  );
-};
+  )
+}
 
-export default TeamsPage;
+export default TeamsPage

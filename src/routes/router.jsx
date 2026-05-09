@@ -1,10 +1,10 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import AuthLayout   from '@/layouts/AuthLayout';
-import AdminLayout  from '@/layouts/AdminLayout';
-import PublicLayout from '@/layouts/PublicLayout';
-import { useAuthContext } from '@/context/useAuthContext';
-import { hasAccess } from '@/utils/rbac';
-import { appRoutes, authRoutes, publicRoutes } from '@/routes/index';
+import { Navigate, Route, Routes } from 'react-router-dom'
+import AuthLayout from '@/layouts/AuthLayout'
+import AdminLayout from '@/layouts/AdminLayout'
+import PublicLayout from '@/layouts/PublicLayout'
+import { useAuthContext } from '@/context/useAuthContext'
+import { hasAccess } from '@/utils/rbac'
+import { appRoutes, authRoutes, publicRoutes } from '@/routes/index'
 
 /**
  * Guards authenticated routes.
@@ -13,40 +13,32 @@ import { appRoutes, authRoutes, publicRoutes } from '@/routes/index';
  * - Admin bypasses role checks (handled inside hasAccess).
  */
 const PrivateRoute = ({ children, roles }) => {
-  const { isAuthenticated, authLoading, role } = useAuthContext();
+  const { isAuthenticated, authLoading, role } = useAuthContext()
 
-  if (authLoading) return null;
+  if (authLoading) return null
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth/sign-in" replace />;
+    return <Navigate to="/auth/sign-in" replace />
   }
 
   if (!hasAccess(role, roles)) {
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to="/unauthorized" replace />
   }
 
-  return children;
-};
+  return children
+}
 
 const AppRouter = (props) => {
   return (
     <Routes>
       {/* Public pages — no auth required */}
       {(publicRoutes || []).map((route, idx) => (
-        <Route
-          key={idx + route.name}
-          path={route.path}
-          element={<PublicLayout {...props}>{route.element}</PublicLayout>}
-        />
+        <Route key={idx + route.name} path={route.path} element={<PublicLayout {...props}>{route.element}</PublicLayout>} />
       ))}
 
       {/* Auth pages — sign-in, maintenance, etc. */}
       {(authRoutes || []).map((route, idx) => (
-        <Route
-          key={idx + route.name}
-          path={route.path}
-          element={<AuthLayout {...props}>{route.element}</AuthLayout>}
-        />
+        <Route key={idx + route.name} path={route.path} element={<AuthLayout {...props}>{route.element}</AuthLayout>} />
       ))}
 
       {/* Protected app pages — wrapped in PrivateRoute with per-route roles */}
@@ -62,7 +54,7 @@ const AppRouter = (props) => {
         />
       ))}
     </Routes>
-  );
-};
+  )
+}
 
-export default AppRouter;
+export default AppRouter

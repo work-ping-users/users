@@ -1,44 +1,30 @@
-import { useCallback, useEffect, useState } from 'react';
-import ReactApexChart from 'react-apexcharts';
-import {
-  Alert, Badge, Card, CardBody, CardHeader,
-  Col, Row, Spinner, Table,
-} from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import PageMetaData from '@/components/PageTitle';
-import IconifyIcon from '@/components/wrappers/IconifyIcon';
-import httpClient from '@/helpers/httpClient';
-import { useAuthContext } from '@/context/useAuthContext';
+import { useCallback, useEffect, useState } from 'react'
+import ReactApexChart from 'react-apexcharts'
+import { Alert, Badge, Card, CardBody, CardHeader, Col, Row, Spinner, Table } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+import PageMetaData from '@/components/PageTitle'
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import httpClient from '@/helpers/httpClient'
+import { useAuthContext } from '@/context/useAuthContext'
 
 // ─── tiny helpers ────────────────────────────────────────────────────────────
 
-const fmtTime = (iso) =>
-  iso
-    ? new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
-    : '—';
+const fmtTime = (iso) => (iso ? new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—')
 
-const fmtDate = (iso) =>
-  iso
-    ? new Date(iso).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-    : '—';
+const fmtDate = (iso) => (iso ? new Date(iso).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—')
 
-const fmtHolidayDate = (iso) =>
-  iso
-    ? new Date(iso).toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' })
-    : '—';
+const fmtHolidayDate = (iso) => (iso ? new Date(iso).toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' }) : '—')
 
 const workedHours = (mins) => {
-  if (mins === null || mins === undefined) return '—';
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return `${h}h ${m}m`;
-};
+  if (mins === null || mins === undefined) return '—'
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return `${h}h ${m}m`
+}
 
-const statusBg = (s) =>
-  ({ present: 'success', late: 'warning', halfDay: 'info', absent: 'danger' }[s] ?? 'secondary');
+const statusBg = (s) => ({ present: 'success', late: 'warning', halfDay: 'info', absent: 'danger' })[s] ?? 'secondary'
 
-const leaveStatusBg = (s) =>
-  ({ approved: 'success', rejected: 'danger', pending: 'warning' }[s] ?? 'secondary');
+const leaveStatusBg = (s) => ({ approved: 'success', rejected: 'danger', pending: 'warning' })[s] ?? 'secondary'
 
 // ─── stat card ───────────────────────────────────────────────────────────────
 
@@ -48,24 +34,27 @@ const StatCard = ({ icon, label, value, color, sub }) => (
       <div className="d-flex align-items-center gap-3">
         <div
           className={`bg-${color}-subtle rounded-3 d-flex align-items-center justify-content-center flex-shrink-0`}
-          style={{ width: 52, height: 52 }}
-        >
+          style={{ width: 52, height: 52 }}>
           <IconifyIcon icon={icon} className={`text-${color} fs-3`} />
         </div>
         <div>
           <div className="fw-bold fs-3 lh-1 mb-1">{value}</div>
           <div className="text-muted small fw-medium">{label}</div>
-          {sub && <div className="text-muted" style={{ fontSize: 11 }}>{sub}</div>}
+          {sub && (
+            <div className="text-muted" style={{ fontSize: 11 }}>
+              {sub}
+            </div>
+          )}
         </div>
       </div>
     </CardBody>
   </Card>
-);
+)
 
 // ─── today card ──────────────────────────────────────────────────────────────
 
 const TodayCard = ({ today }) => {
-  const notMarked = !today.status;
+  const notMarked = !today.status
   return (
     <Card className="h-100 border-0 shadow-sm">
       <CardHeader className="border-bottom pb-2">
@@ -105,16 +94,16 @@ const TodayCard = ({ today }) => {
         )}
       </CardBody>
     </Card>
-  );
-};
+  )
+}
 
 // ─── monthly attendance donut ─────────────────────────────────────────────────
 
 const AttendanceChart = ({ summary }) => {
-  const { present = 0, late = 0, halfDay = 0, absent = 0 } = summary;
-  const total = present + late + halfDay + absent;
+  const { present = 0, late = 0, halfDay = 0, absent = 0 } = summary
+  const total = present + late + halfDay + absent
 
-  const series  = [present, late, halfDay, absent];
+  const series = [present, late, halfDay, absent]
   const options = {
     chart: { type: 'donut', height: 200 },
     labels: ['Present', 'Late', 'Half Day', 'Absent'],
@@ -138,14 +127,14 @@ const AttendanceChart = ({ summary }) => {
         },
       },
     },
-  };
+  }
 
   const items = [
-    { label: 'Present',  value: present,  color: 'success' },
-    { label: 'Late',     value: late,      color: 'warning' },
-    { label: 'Half Day', value: halfDay,   color: 'info'    },
-    { label: 'Absent',   value: absent,    color: 'danger'  },
-  ];
+    { label: 'Present', value: present, color: 'success' },
+    { label: 'Late', value: late, color: 'warning' },
+    { label: 'Half Day', value: halfDay, color: 'info' },
+    { label: 'Absent', value: absent, color: 'danger' },
+  ]
 
   return (
     <Card className="h-100 border-0 shadow-sm">
@@ -166,7 +155,9 @@ const AttendanceChart = ({ summary }) => {
                 <Col xs={6} key={label}>
                   <div className={`border border-${color}-subtle rounded-2 p-2 text-center bg-${color}-subtle bg-opacity-25`}>
                     <div className={`fw-bold text-${color} fs-5`}>{value}</div>
-                    <div className="text-muted" style={{ fontSize: 11 }}>{label}</div>
+                    <div className="text-muted" style={{ fontSize: 11 }}>
+                      {label}
+                    </div>
                   </div>
                 </Col>
               ))}
@@ -175,14 +166,14 @@ const AttendanceChart = ({ summary }) => {
         )}
       </CardBody>
     </Card>
-  );
-};
+  )
+}
 
 // ─── leave balance card ───────────────────────────────────────────────────────
 
 const LeaveBalanceCard = ({ leaveBalance }) => {
-  const { totalCLDays = 12, usedDays = 0, remainingDays = 12 } = leaveBalance;
-  const pct = Math.min(100, Math.round((usedDays / totalCLDays) * 100));
+  const { totalCLDays = 12, usedDays = 0, remainingDays = 12 } = leaveBalance
+  const pct = Math.min(100, Math.round((usedDays / totalCLDays) * 100))
 
   return (
     <Card className="border-0 shadow-sm">
@@ -194,22 +185,23 @@ const LeaveBalanceCard = ({ leaveBalance }) => {
       </CardHeader>
       <CardBody>
         <div className="d-flex justify-content-between mb-1">
-          <span className="text-muted small">{usedDays} used of {totalCLDays} days</span>
+          <span className="text-muted small">
+            {usedDays} used of {totalCLDays} days
+          </span>
           <span className="fw-semibold text-success">{remainingDays} left</span>
         </div>
         <div className="progress mb-3" style={{ height: 8 }}>
-          <div
-            className={`progress-bar ${pct >= 80 ? 'bg-danger' : pct >= 60 ? 'bg-warning' : 'bg-success'}`}
-            style={{ width: `${pct}%` }}
-          />
+          <div className={`progress-bar ${pct >= 80 ? 'bg-danger' : pct >= 60 ? 'bg-warning' : 'bg-success'}`} style={{ width: `${pct}%` }} />
         </div>
         <div className="d-flex gap-2">
-          <Link to="/leave" className="btn btn-sm btn-soft-primary w-100">Apply Leave</Link>
+          <Link to="/leave" className="btn btn-sm btn-soft-primary w-100">
+            Apply Leave
+          </Link>
         </div>
       </CardBody>
     </Card>
-  );
-};
+  )
+}
 
 // ─── recent leaves ────────────────────────────────────────────────────────────
 
@@ -220,7 +212,9 @@ const RecentLeaves = ({ leaves }) => (
         <IconifyIcon icon="bx:notepad" className="me-2 text-primary" />
         My Recent Leaves
       </h6>
-      <Link to="/leave" className="btn btn-xs btn-soft-primary py-0 px-2" style={{ fontSize: 12 }}>View All</Link>
+      <Link to="/leave" className="btn btn-xs btn-soft-primary py-0 px-2" style={{ fontSize: 12 }}>
+        View All
+      </Link>
     </CardHeader>
     <CardBody className="p-0">
       {leaves.length === 0 ? (
@@ -255,7 +249,7 @@ const RecentLeaves = ({ leaves }) => (
       )}
     </CardBody>
   </Card>
-);
+)
 
 // ─── upcoming holidays ────────────────────────────────────────────────────────
 
@@ -266,7 +260,9 @@ const UpcomingHolidays = ({ holidays }) => (
         <IconifyIcon icon="bx:party" className="me-2 text-warning" />
         Upcoming Holidays
       </h6>
-      <Link to="/holidays" className="btn btn-xs btn-soft-warning py-0 px-2" style={{ fontSize: 12 }}>View All</Link>
+      <Link to="/holidays" className="btn btn-xs btn-soft-warning py-0 px-2" style={{ fontSize: 12 }}>
+        View All
+      </Link>
     </CardHeader>
     <CardBody className="p-0">
       {holidays.length === 0 ? (
@@ -275,10 +271,7 @@ const UpcomingHolidays = ({ holidays }) => (
         <div className="list-group list-group-flush">
           {holidays.map((h, i) => (
             <div key={h._id ?? i} className="list-group-item border-0 d-flex align-items-center gap-3 py-2 px-3">
-              <div
-                className="bg-warning-subtle rounded-2 text-center flex-shrink-0"
-                style={{ width: 40, height: 40, paddingTop: 4 }}
-              >
+              <div className="bg-warning-subtle rounded-2 text-center flex-shrink-0" style={{ width: 40, height: 40, paddingTop: 4 }}>
                 <div className="fw-bold text-warning lh-1" style={{ fontSize: 15 }}>
                   {new Date(h.date).getDate()}
                 </div>
@@ -288,13 +281,14 @@ const UpcomingHolidays = ({ holidays }) => (
               </div>
               <div className="flex-grow-1">
                 <div className="fw-medium fs-13">{h.name}</div>
-                <div className="text-muted" style={{ fontSize: 11 }}>{fmtHolidayDate(h.date)}</div>
+                <div className="text-muted" style={{ fontSize: 11 }}>
+                  {fmtHolidayDate(h.date)}
+                </div>
               </div>
               <Badge
                 bg={h.type === 'public' ? 'primary-subtle' : 'success-subtle'}
                 className={`text-${h.type === 'public' ? 'primary' : 'success'} px-2`}
-                style={{ fontSize: 10 }}
-              >
+                style={{ fontSize: 10 }}>
                 {h.type === 'public' ? 'Public' : 'Org'}
               </Badge>
             </div>
@@ -303,19 +297,16 @@ const UpcomingHolidays = ({ holidays }) => (
       )}
     </CardBody>
   </Card>
-);
+)
 
 // ─── team card ────────────────────────────────────────────────────────────────
 
 const TeamCard = ({ team }) => {
-  if (!team) return null;
+  if (!team) return null
   return (
     <Card className="border-0 shadow-sm">
       <CardBody className="d-flex align-items-center gap-3">
-        <div
-          className="bg-primary-subtle rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
-          style={{ width: 48, height: 48 }}
-        >
+        <div className="bg-primary-subtle rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: 48, height: 48 }}>
           <IconifyIcon icon="bxs:group" className="text-primary fs-4" />
         </div>
         <div className="flex-grow-1">
@@ -331,13 +322,13 @@ const TeamCard = ({ team }) => {
         </Link>
       </CardBody>
     </Card>
-  );
-};
+  )
+}
 
 // ─── projects strip ───────────────────────────────────────────────────────────
 
 const ProjectsStrip = ({ projects }) => {
-  if (!projects.list?.length) return null;
+  if (!projects.list?.length) return null
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="d-flex align-items-center justify-content-between border-bottom pb-2">
@@ -345,7 +336,9 @@ const ProjectsStrip = ({ projects }) => {
           <IconifyIcon icon="bx:briefcase-alt-2" className="me-2 text-info" />
           My Active Projects
         </h6>
-        <Link to="/my-projects" className="btn btn-xs btn-soft-info py-0 px-2" style={{ fontSize: 12 }}>View All</Link>
+        <Link to="/my-projects" className="btn btn-xs btn-soft-info py-0 px-2" style={{ fontSize: 12 }}>
+          View All
+        </Link>
       </CardHeader>
       <CardBody>
         <Row className="g-3">
@@ -354,7 +347,9 @@ const ProjectsStrip = ({ projects }) => {
               <div className="border rounded-3 p-3 h-100">
                 <div className="fw-semibold fs-13 mb-1">{p.name}</div>
                 {p.contractedBy && (
-                  <div className="text-muted" style={{ fontSize: 11 }}>Client: {p.contractedBy}</div>
+                  <div className="text-muted" style={{ fontSize: 11 }}>
+                    Client: {p.contractedBy}
+                  </div>
                 )}
                 {p.dueDate && (
                   <div className="text-muted mt-1" style={{ fontSize: 11 }}>
@@ -362,38 +357,42 @@ const ProjectsStrip = ({ projects }) => {
                     Due {fmtDate(p.dueDate)}
                   </div>
                 )}
-                <Badge bg="success-subtle" className="text-success mt-2 px-2" style={{ fontSize: 10 }}>Active</Badge>
+                <Badge bg="success-subtle" className="text-success mt-2 px-2" style={{ fontSize: 10 }}>
+                  Active
+                </Badge>
               </div>
             </Col>
           ))}
         </Row>
       </CardBody>
     </Card>
-  );
-};
+  )
+}
 
 // ─── page ─────────────────────────────────────────────────────────────────────
 
 const EmployeeDashboardPage = () => {
-  const { user } = useAuthContext();
-  const [data, setData]       = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const { user } = useAuthContext()
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const fetchDashboard = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
-      const res = await httpClient.get('/user/dashboard', { silent: true });
-      setData(res.data?.data ?? null);
+      const res = await httpClient.get('/user/dashboard', { silent: true })
+      setData(res.data?.data ?? null)
     } catch {
-      setError('Failed to load dashboard. Please refresh.');
+      setError('Failed to load dashboard. Please refresh.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, []);
+  }, [])
 
-  useEffect(() => { fetchDashboard(); }, [fetchDashboard]);
+  useEffect(() => {
+    fetchDashboard()
+  }, [fetchDashboard])
 
   if (loading) {
     return (
@@ -401,20 +400,25 @@ const EmployeeDashboardPage = () => {
         <Spinner animation="border" variant="primary" />
         <p className="mt-2 text-muted small">Loading your workspace...</p>
       </div>
-    );
+    )
   }
 
-  const today             = data?.today             ?? {};
-  const attendanceSummary = data?.attendanceSummary ?? {};
-  const leaveBalance      = data?.leaveBalance      ?? {};
-  const recentLeaves      = data?.recentLeaves      ?? [];
-  const upcomingHolidays  = data?.upcomingHolidays  ?? [];
-  const team              = data?.team              ?? null;
-  const projects          = data?.projects          ?? { total: 0, active: 0, list: [] };
+  const today = data?.today ?? {}
+  const attendanceSummary = data?.attendanceSummary ?? {}
+  const leaveBalance = data?.leaveBalance ?? {}
+  const recentLeaves = data?.recentLeaves ?? []
+  const upcomingHolidays = data?.upcomingHolidays ?? []
+  const team = data?.team ?? null
+  const projects = data?.projects ?? { total: 0, active: 0, list: [] }
 
-  const presentPct = attendanceSummary.present && (attendanceSummary.present + (attendanceSummary.absent ?? 0)) > 0
-    ? Math.round((attendanceSummary.present / (attendanceSummary.present + (attendanceSummary.absent ?? 0) + (attendanceSummary.late ?? 0) + (attendanceSummary.halfDay ?? 0))) * 100)
-    : 0;
+  const presentPct =
+    attendanceSummary.present && attendanceSummary.present + (attendanceSummary.absent ?? 0) > 0
+      ? Math.round(
+          (attendanceSummary.present /
+            (attendanceSummary.present + (attendanceSummary.absent ?? 0) + (attendanceSummary.late ?? 0) + (attendanceSummary.halfDay ?? 0))) *
+            100,
+        )
+      : 0
 
   return (
     <>
@@ -423,15 +427,19 @@ const EmployeeDashboardPage = () => {
       {/* Greeting */}
       <div className="pb-3">
         <h4 className="mb-1 fw-bold">
-          Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'},{' '}
-          {user?.name?.split(' ')[0] || 'there'}!
+          Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, {user?.name?.split(' ')[0] || 'there'}
+          !
         </h4>
         <p className="text-muted mb-0">
           {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </p>
       </div>
 
-      {error && <Alert variant="danger" className="mb-3" onClose={() => setError(null)} dismissible>{error}</Alert>}
+      {error && (
+        <Alert variant="danger" className="mb-3" onClose={() => setError(null)} dismissible>
+          {error}
+        </Alert>
+      )}
 
       {/* Stats row */}
       <Row className="g-3 mb-4">
@@ -466,7 +474,9 @@ const EmployeeDashboardPage = () => {
           <StatCard
             icon="bx:time-five"
             label="Today"
-            value={today.status ? (today.status === 'halfDay' ? 'Half Day' : today.status.charAt(0).toUpperCase() + today.status.slice(1)) : 'Not Marked'}
+            value={
+              today.status ? (today.status === 'halfDay' ? 'Half Day' : today.status.charAt(0).toUpperCase() + today.status.slice(1)) : 'Not Marked'
+            }
             color={today.status ? statusBg(today.status) : 'secondary'}
             sub={today.checkIn ? `In: ${fmtTime(today.checkIn)}` : undefined}
           />
@@ -514,7 +524,7 @@ const EmployeeDashboardPage = () => {
         </Row>
       )}
     </>
-  );
-};
+  )
+}
 
-export default EmployeeDashboardPage;
+export default EmployeeDashboardPage

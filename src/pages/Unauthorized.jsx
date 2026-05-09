@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
-import IconifyIcon from '@/components/wrappers/IconifyIcon';
-import PageMetaData from '@/components/PageTitle';
+import { Link } from 'react-router-dom'
+import { Button } from 'react-bootstrap'
+import IconifyIcon from '@/components/wrappers/IconifyIcon'
+import PageMetaData from '@/components/PageTitle'
 
 const Unauthorized = () => {
   return (
@@ -19,7 +19,7 @@ const Unauthorized = () => {
         </Link>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Unauthorized;
+export default Unauthorized

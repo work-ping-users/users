@@ -1,4 +1,6 @@
-const Preloader = () => <div className="preloader-progress-bar">
+const Preloader = () => (
+  <div className="preloader-progress-bar">
     <div className="progress-value" />
-  </div>;
-export default Preloader;
+  </div>
+)
+export default Preloader
