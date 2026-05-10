@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Card, CardBody, CardFooter, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row, Form } from 'react-bootstrap'
+import { Button, Card, CardBody, CardFooter, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row, Form, OverlayTrigger, Tooltip, Popover } from 'react-bootstrap'
 
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import { useAuthContext } from '@/context/useAuthContext'
@@ -16,6 +16,7 @@ const AboutCard = () => {
 
   const [editingKey, setEditingKey] = useState(null)
   const [tempLink, setTempLink] = useState('')
+  const [isHovered, setIsHovered] = useState(false)
 
   /* ---------- Link Config ---------- */
   const linkConfig = {
@@ -52,17 +53,58 @@ const AboutCard = () => {
     <Card className="text-center h-100">
       {/* ---------- Avatar ---------- */}
       <div className="d-flex justify-content-center pt-4">
-        <img
-          src={avatar1}
-          alt="avatar"
-          className="avatar-lg rounded-circle border border-light border-3"
-          style={{
-            width: '140px',
-            height: '140px',
-            maxWidth: '40vw',
-            maxHeight: '40vw',
-          }}
-        />
+        <OverlayTrigger
+          trigger="click"
+          placement="bottom"
+          rootClose
+          overlay={
+            <Popover id="popover-upload-image" className="border-0 shadow-lg" style={{ backgroundColor: '#1e1e1e', minWidth: '280px', borderRadius: '12px' }}>
+              <Popover.Body className="text-center p-3">
+                <Button variant="dark" className="w-100 mb-3 d-flex align-items-center justify-content-center gap-2 py-2" style={{ backgroundColor: '#2b2b2b', borderColor: '#2b2b2b' }}>
+                  <IconifyIcon icon="bx:upload" className="fs-20 text-white" />
+                  <span className="fw-medium text-white">Upload Image</span>
+                </Button>
+                <p className="text-muted mb-0 fs-13">
+                  Recommended size is 200 x 200 pixels<br />
+                  The maximum size per file is 5 MB.
+                </p>
+              </Popover.Body>
+            </Popover>
+          }
+        >
+          <div style={{ display: 'inline-block' }}>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip id="tooltip-edit-avatar">Edit Avatar</Tooltip>}
+            >
+              <div 
+                className="position-relative"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                style={{ cursor: 'pointer', display: 'inline-block' }}
+              >
+                <img
+                  src={avatar1}
+                  alt="avatar"
+                  className="avatar-lg rounded-circle border border-light border-3"
+                  style={{
+                    width: '140px',
+                    height: '140px',
+                    maxWidth: '40vw',
+                    maxHeight: '40vw',
+                    filter: isHovered ? 'brightness(0.5)' : 'none',
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                />
+                {isHovered && (
+                  <div className="position-absolute top-50 start-50 translate-middle" style={{ pointerEvents: 'none' }}>
+                    <IconifyIcon icon="mdi:pencil-outline" className="text-white" style={{ fontSize: '32px' }} />
+                  </div>
+                )}
+              </div>
+            </OverlayTrigger>
+          </div>
+        </OverlayTrigger>
       </div>
 
       <CardBody>
