@@ -201,6 +201,10 @@
         min-height: calc(100vh - $topbar-height);
         padding: calc($spacer * 1) calc($spacer * 0.5) $footer-height calc($spacer * 0.5);
         margin-left: $main-nav-width;
+        
+        @media (max-width: 768px) {
+            padding-bottom: calc(#{$footer-height} + 80px);
+        }
     }
 }
 

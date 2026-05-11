@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Badge, Button, Card, CardBody, CardHeader, Col, Form, Row, Spinner } from 'react-bootstrap'
+import { Badge, Button, Card, CardBody, CardHeader, Col, Form, Modal, ModalBody, ModalHeader, Row, Spinner } from 'react-bootstrap'
 import PageMetaData from '@/components/PageTitle'
 import ReactTable from '@/components/Table'
 import IconifyIcon from '@/components/wrappers/IconifyIcon'
 import httpClient from '@/helpers/httpClient'
+import { useAuthContext } from '@/context/useAuthContext'
 
 const LEAVE_TYPES = ['Casual', 'Sick', 'Earned', 'Unpaid']
 
@@ -27,12 +28,26 @@ const buildDatesArray = (from, to) => {
 }
 
 const LeavePage = () => {
+  const { user } = useAuthContext()
   const [leaves, setLeaves] = useState([])
   const [balance, setBalance] = useState({ totalCLDays: 0, usedDays: 0, remainingDays: 0 })
   const [fetching, setFetching] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState({ from: '', to: '', type: '', reason: '' })
   const [errors, setErrors] = useState({})
+
+  // Detail modal state
+  const [showDetail, setShowDetail] = useState(false)
+  const [selectedLeave, setSelectedLeave] = useState(null)
+
+  const openDetail = (leave) => {
+    setSelectedLeave(leave)
+    setShowDetail(true)
+  }
+  const closeDetail = () => {
+    setShowDetail(false)
+    setSelectedLeave(null)
+  }
 
   const fetchLeaves = useCallback(async () => {
     setFetching(true)
@@ -148,7 +163,7 @@ const LeavePage = () => {
               <IconifyIcon icon="bx:trash" height={16} width={16} />
             </Button>
           ) : (
-            <Button variant="outline-info" size="sm" className="py-0">
+            <Button variant="outline-info" size="sm" className="py-0" onClick={() => openDetail(row.original)}>
               <IconifyIcon icon="bx:show" height={16} width={16} />
             </Button>
           ),
@@ -278,6 +293,74 @@ const LeavePage = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Leave Request Details Modal */}
+      <Modal show={showDetail} onHide={closeDetail} centered>
+        <ModalHeader closeButton>
+          <h5 className="mb-0">Leave Request Details</h5>
+        </ModalHeader>
+        <ModalBody>
+          {selectedLeave && (() => {
+            const dates = selectedLeave.dates ?? []
+            const fromDate = dates[0]
+            const toDate = dates[dates.length - 1]
+            const dayCount = dates.length
+            const statusVal = selectedLeave.status
+            const statusBg = statusVal === 'approved' ? 'success' : statusVal === 'rejected' ? 'danger' : 'warning'
+
+            const rows = [
+              { label: 'Employee', value: user?.name ?? '—' },
+              { label: 'Email', value: user?.email ?? '—' },
+              { label: 'Leave Type', value: selectedLeave.leaveType ?? '—' },
+              {
+                label: 'Dates',
+                value: `${fmtDate(fromDate)} – ${fmtDate(toDate)} (${dayCount}d)`,
+              },
+              { label: 'Days', value: dayCount },
+              { label: 'Applied On', value: fmtDate(selectedLeave.createdAt) },
+              {
+                label: 'Status',
+                value: (
+                  <Badge bg={statusBg} className="px-2 py-1 text-capitalize">
+                    {statusVal}
+                  </Badge>
+                ),
+              },
+            ]
+
+            return (
+              <>
+                <table className="w-100 mb-3" style={{ borderCollapse: 'separate', borderSpacing: '0 6px' }}>
+                  <tbody>
+                    {rows.map(({ label, value }) => (
+                      <tr key={label}>
+                        <td className="text-muted py-1 pe-3" style={{ whiteSpace: 'nowrap', width: '40%' }}>
+                          {label}
+                        </td>
+                        <td className="fw-semibold py-1 text-end">{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div className="text-muted mb-1">Reason</div>
+                <div
+                  className="border rounded px-3 py-2 bg-light"
+                  style={{ minHeight: 40 }}
+                >
+                  {selectedLeave.reason || '—'}
+                </div>
+
+                <div className="d-flex justify-content-end mt-3">
+                  <Button variant="primary" onClick={closeDetail}>
+                    Close
+                  </Button>
+                </div>
+              </>
+            )
+          })()}
+        </ModalBody>
+      </Modal>
     </>
   )
 }

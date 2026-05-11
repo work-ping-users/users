@@ -64,6 +64,7 @@ const MyProjectsPage = () => {
         id: 'project',
         cell: ({ row }) => {
           const p = row.original.project ?? row.original
+          const managerName = p.projectManagerName ?? p.projectManager?.name ?? '—'
           return (
             <div>
               <Link to={`/my-projects/${p._id}`} state={{ project: p }} className="fw-semibold text-decoration-none">
@@ -71,10 +72,15 @@ const MyProjectsPage = () => {
               </Link>
               {p.contractedBy && <div className="text-muted fs-12">Client: {p.contractedBy}</div>}
               {p.description && (
-                <div className="text-muted fs-12 mt-1" style={{ maxWidth: 260 }}>
+                <div className="text-muted fs-12 mt-1 text-truncate" style={{ maxWidth: 260 }}>
                   {p.description}
                 </div>
               )}
+              {/* Mobile-only inline details */}
+              <div className="d-md-none mt-2 fs-12 text-muted">
+                <div><strong>Due:</strong> {fmtDate(p.dueDate)}</div>
+                <div><strong>Manager:</strong> {managerName}</div>
+              </div>
             </div>
           )
         },
@@ -96,16 +102,19 @@ const MyProjectsPage = () => {
       {
         header: 'Assigned Date',
         id: 'assigned',
+        meta: { className: 'd-none d-lg-table-cell' },
         cell: ({ row }) => <span className="text-nowrap">{fmtDate((row.original.project ?? row.original).assignedDate)}</span>,
       },
       {
         header: 'Due Date',
         id: 'due',
+        meta: { className: 'd-none d-md-table-cell' },
         cell: ({ row }) => <span className="text-nowrap">{fmtDate((row.original.project ?? row.original).dueDate)}</span>,
       },
       {
         header: 'Manager',
         id: 'manager',
+        meta: { className: 'd-none d-md-table-cell' },
         cell: ({ row }) => {
           const p = row.original.project ?? row.original
           const name = p.projectManagerName ?? p.projectManager?.name
@@ -121,7 +130,7 @@ const MyProjectsPage = () => {
       <PageMetaData title="My Projects" />
 
       {/* Stats */}
-      <Row className="g-3 mb-3">
+      <Row className="g-2 g-md-3 mb-3">
         {[
           { label: 'Total Projects', value: stats.total, color: 'primary', icon: 'bx:briefcase-alt-2' },
           { label: 'Active', value: stats.active, color: 'success', icon: 'bx:check-circle' },
@@ -129,15 +138,15 @@ const MyProjectsPage = () => {
         ].map(({ label, value, color, icon }) => (
           <Col key={label} xs={4}>
             <Card className="border-0 shadow-sm">
-              <CardBody className="d-flex align-items-center gap-3 py-3">
+              <CardBody className="d-flex align-items-center gap-2 gap-md-3 py-2 py-md-3 px-2 px-md-3">
                 <div
-                  className={`bg-${color}-subtle rounded-circle d-flex align-items-center justify-content-center`}
+                  className={`bg-${color}-subtle rounded-circle d-flex align-items-center justify-content-center d-none d-sm-flex`}
                   style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <IconifyIcon icon={icon} className={`text-${color} fs-4`} />
                 </div>
-                <div>
-                  <div className="fw-bold fs-4">{loading ? <Spinner size="sm" animation="border" /> : value}</div>
-                  <div className="text-muted small">{label}</div>
+                <div className="text-center text-sm-start w-100">
+                  <div className="fw-bold fs-5 fs-md-4">{loading ? <Spinner size="sm" animation="border" /> : value}</div>
+                  <div className="text-muted" style={{ fontSize: '0.7rem' }}>{label}</div>
                 </div>
               </CardBody>
             </Card>
@@ -148,7 +157,7 @@ const MyProjectsPage = () => {
       <Card>
         <CardHeader className="border-bottom">
           <Row className="g-2 align-items-end">
-            <Col md={6}>
+            <Col xs={12} md={6}>
               <Form.Label className="fw-semibold">Search</Form.Label>
               <Form.Control
                 type="text"
@@ -157,8 +166,8 @@ const MyProjectsPage = () => {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </Col>
-            <Col md={4}>
-              <Form.Label className="fw-semibold">Status</Form.Label>
+            <Col xs={12} md={4}>
+              <Form.Label className="fw-semibold mt-2 mt-md-0">Status</Form.Label>
               <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                 <option value="">All Statuses</option>
                 {STATUS_OPTIONS.map((s) => (

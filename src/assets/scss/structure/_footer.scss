@@ -9,9 +9,10 @@
     position: absolute;
     display: flex;
     align-items: center;
-    padding: 0 calc(#{$spacer} * 0.5);
+    padding: calc(#{$spacer} * 0.5);
     color: $footer-color;
-    height: $footer-height;
+    min-height: $footer-height;
+    height: auto;
     background-color: $card-bg;
     box-shadow: $box-shadow;
 }

@@ -78,15 +78,27 @@ const MyTeamPage = () => {
               <div>
                 <div className="fw-semibold">{u?.name ?? '—'}</div>
                 <div className="text-muted fs-12">{u?.email ?? '—'}</div>
+                {/* Show role & status inline on mobile where columns are hidden */}
+                <div className="d-flex d-md-none gap-1 mt-1 flex-wrap">
+                  {u?.role && (
+                    <Badge bg={{ employee: 'secondary', manager: 'primary', teamLead: 'warning' }[u.role] ?? 'secondary'} className="px-2 py-1 text-capitalize" style={{ fontSize: '0.65rem' }}>
+                      {u.role}
+                    </Badge>
+                  )}
+                  <Badge bg={u?.isActive ? 'success' : 'danger'} className="px-2 py-1" style={{ fontSize: '0.65rem' }}>
+                    {u?.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
+                </div>
               </div>
             </div>
           )
         },
       },
-      { header: 'Employee ID', id: 'empId', cell: ({ row }) => row.original.user?.employeeId ?? '—' },
+      { header: 'Employee ID', id: 'empId', meta: { className: 'd-none d-md-table-cell' }, cell: ({ row }) => row.original.user?.employeeId ?? '—' },
       {
         header: 'Role',
         id: 'role',
+        meta: { className: 'd-none d-md-table-cell' },
         cell: ({ row }) => {
           const r = row.original.user?.role
           const map = { employee: 'secondary', manager: 'primary', teamLead: 'warning' }
@@ -102,6 +114,7 @@ const MyTeamPage = () => {
       {
         header: 'Work Type',
         id: 'workType',
+        meta: { className: 'd-none d-lg-table-cell' },
         cell: ({ row }) => {
           const w = row.original.user?.workType
           return w ? (
@@ -116,6 +129,7 @@ const MyTeamPage = () => {
       {
         header: 'Status',
         id: 'status',
+        meta: { className: 'd-none d-md-table-cell' },
         cell: ({ row }) => {
           const active = row.original.user?.isActive
           return (
@@ -125,7 +139,7 @@ const MyTeamPage = () => {
           )
         },
       },
-      { header: 'Joined', id: 'joined', cell: ({ row }) => <span className="text-nowrap">{fmtDate(row.original.joinedAt)}</span> },
+      { header: 'Joined', id: 'joined', meta: { className: 'd-none d-lg-table-cell' }, cell: ({ row }) => <span className="text-nowrap">{fmtDate(row.original.joinedAt)}</span> },
     ],
     [],
   )
@@ -159,7 +173,7 @@ const MyTeamPage = () => {
       {/* Team overview */}
       <Card className="border-0 shadow-sm mb-4">
         <CardBody>
-          <div className="d-flex align-items-center gap-3 mb-3">
+          <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3 mb-3">
             <div
               className="bg-primary-subtle rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
               style={{ width: 56, height: 56 }}>
@@ -180,14 +194,14 @@ const MyTeamPage = () => {
 
           <Row className="g-3">
             {team.manager && (
-              <Col sm={6} md={4}>
+              <Col xs={12} sm={6} md={4}>
                 <div className="border rounded-3 p-3">
                   <div className="text-muted fs-12 text-uppercase fw-semibold mb-2">Manager</div>
                   <div className="d-flex align-items-center gap-2">
                     <Avatar name={team.manager.name} size={32} />
                     <div>
                       <div className="fw-semibold fs-13">{team.manager.name}</div>
-                      <div className="text-muted fs-12">{team.manager.email}</div>
+                      <div className="text-muted fs-12 text-truncate" style={{ maxWidth: 200 }}>{team.manager.email}</div>
                     </div>
                   </div>
                 </div>
@@ -195,7 +209,7 @@ const MyTeamPage = () => {
             )}
 
             {team.leaders?.length > 0 && (
-              <Col sm={6} md={8}>
+              <Col xs={12} sm={6} md={8}>
                 <div className="border rounded-3 p-3">
                   <div className="text-muted fs-12 text-uppercase fw-semibold mb-2">Team Leaders</div>
                   <div className="d-flex flex-wrap gap-2">
@@ -214,7 +228,7 @@ const MyTeamPage = () => {
       </Card>
 
       {/* Stats */}
-      <Row className="g-3 mb-3">
+      <Row className="g-2 g-md-3 mb-3">
         {[
           { label: 'Total Members', value: stats.total, color: 'primary', icon: 'bxs:group' },
           { label: 'Active', value: stats.active, color: 'success', icon: 'bx:check-circle' },
@@ -222,15 +236,15 @@ const MyTeamPage = () => {
         ].map(({ label, value, color, icon }) => (
           <Col key={label} xs={4}>
             <Card className="border-0 shadow-sm">
-              <CardBody className="d-flex align-items-center gap-3 py-3">
+              <CardBody className="d-flex align-items-center gap-2 gap-md-3 py-2 py-md-3 px-2 px-md-3">
                 <div
-                  className={`bg-${color}-subtle rounded-circle d-flex align-items-center justify-content-center`}
+                  className={`bg-${color}-subtle rounded-circle d-flex align-items-center justify-content-center d-none d-sm-flex`}
                   style={{ width: 44, height: 44, flexShrink: 0 }}>
                   <IconifyIcon icon={icon} className={`text-${color} fs-4`} />
                 </div>
-                <div>
-                  <div className="fw-bold fs-4">{value}</div>
-                  <div className="text-muted small">{label}</div>
+                <div className="text-center text-sm-start w-100">
+                  <div className="fw-bold fs-5 fs-md-4">{value}</div>
+                  <div className="text-muted" style={{ fontSize: '0.7rem' }}>{label}</div>
                 </div>
               </CardBody>
             </Card>
@@ -251,10 +265,10 @@ const MyTeamPage = () => {
             <input
               type="text"
               className="form-control"
-              placeholder="Search by name, email or employee ID..."
+              placeholder="Search by name, email or ID..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              style={{ maxWidth: 340 }}
+              style={{ maxWidth: '100%' }}
             />
           </div>
         </CardHeader>
